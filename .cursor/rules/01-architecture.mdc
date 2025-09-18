@@ -1,0 +1,76 @@
+---
+alwaysApply: true
+description: Health Record App - Project Architecture and Structure Guidelines
+---
+
+# 🏗️ Health Record App - Architecture & Structure
+
+## 📋 Project Overview
+This is a health record management web application designed for elderly users (diabetes, hypertension patients) to easily record and track their health metrics.
+
+## 🛠️ Technology Stack
+
+### Frontend Stack
+- **Framework**: React 19.1.1 + TypeScript 5.8.3
+- **Build Tool**: Vite 7.1.2
+- **State Management**: Redux Toolkit 2.9.0
+- **UI Library**: Material-UI (MUI) 7.3.2
+- **Routing**: React Router DOM 7.9.1
+- **Backend**: Supabase (PostgreSQL + Auth + Storage)
+
+### Key Dependencies
+- **Styling**: @emotion/react, @emotion/styled
+- **Icons**: @mui/icons-material
+- **Charts**: recharts (for data visualization)
+- **Date Handling**: date-fns
+
+## 📁 Directory Structure
+```
+src/
+├── components/     # 🔧 Reusable UI components
+│   ├── AuthDebug.tsx
+│   ├── OAuthCallback.tsx
+│   ├── ProtectedRoute.tsx
+│   ├── SocialLoginGuide.tsx
+│   └── SupabaseStatus.tsx
+├── hooks/         # 🎣 Custom React hooks
+│   └── useAuth.ts
+├── lib/          # 📚 Utility libraries
+│   ├── supabase.ts
+│   └── supabaseConfig.ts
+├── pages/        # 📄 Page components
+│   ├── DashboardPage.tsx
+│   ├── HealthRecordPage.tsx
+│   ├── LoginPage.tsx
+│   └── ProfilePage.tsx
+├── store/        # 🗄️ Redux store and slices
+│   ├── index.ts
+│   └── slices/
+│       ├── authSlice.ts
+│       └── healthRecordsSlice.ts
+└── App.tsx       # 🚀 Main app component
+```
+
+## 🎯 Key Files
+- [App.tsx](mdc:src/App.tsx) - Main app with routing and theme configuration
+- [store/index.ts](mdc:src/store/index.ts) - Redux store configuration
+- [hooks/useAuth.ts](mdc:src/hooks/useAuth.ts) - Authentication hook
+- [lib/supabase.ts](mdc:src/lib/supabase.ts) - Supabase client configuration
+
+## 🎨 Design Principles
+- **👴 Senior-Friendly**: Large fonts, high contrast, simple navigation
+- **♿ Accessibility**: Clear labels, intuitive icons, keyboard navigation
+- **🇰🇷 Korean Language**: Full Korean language support
+- **📱 Responsive**: Works on desktop and mobile devices
+
+## 🔄 Data Flow
+1. **Authentication**: Supabase Auth → Redux Store → Components
+2. **Health Records**: User Input → Redux Actions → Supabase → UI Update
+3. **Navigation**: React Router → Protected Routes → Page Components
+
+## 🏛️ Architecture Patterns
+- **Component-Based**: React functional components with hooks
+- **Redux Pattern**: Centralized state management with slices
+- **Custom Hooks**: Reusable logic extraction
+- **Protected Routes**: Authentication-based route protection
+- **OAuth Integration**: Social login with Google and Kakao

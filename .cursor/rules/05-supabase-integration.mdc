@@ -1,0 +1,444 @@
+---
+globs: src/lib/**/*.ts,src/store/slices/**/*.ts
+description: Supabase Integration Guidelines
+---
+
+# 🗄️ Supabase Integration Guidelines
+
+## ⚙️ Client Configuration
+
+### Environment Variables
+```typescript
+// ✅ Always use environment variables with fallbacks
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://rkidyixevbnqkogcvhhy.supabase.co'
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'fallback_key'
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+```
+
+### Type Definitions
+```typescript
+// ✅ Define comprehensive database types
+export type Database = {
+  public: {
+    Tables: {
+      users: {
+        Row: {
+          id: string
+          email: string
+          name: string
+          birth_year: number | null
+          gender: string | null
+          phone: string | null
+          emergency_contact: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          email: string
+          name: string
+          birth_year?: number | null
+          gender?: string | null
+          phone?: string | null
+          emergency_contact?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          email?: string
+          name?: string
+          birth_year?: number | null
+          gender?: string | null
+          phone?: string | null
+          emergency_contact?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      // ... other tables
+    }
+  }
+}
+```
+
+## 🗃️ Database Schema
+
+### Core Tables
+```sql
+-- 👤 Users table
+CREATE TABLE users (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  email TEXT UNIQUE NOT NULL,
+  name TEXT NOT NULL,
+  birth_year INTEGER,
+  gender TEXT,
+  phone TEXT,
+  emergency_contact TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- 📊 Health records table
+CREATE TABLE health_records (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  record_type TEXT NOT NULL CHECK (record_type IN ('blood_pressure', 'blood_sugar', 'weight', 'heart_rate', 'temperature')),
+  systolic_pressure INTEGER,
+  diastolic_pressure INTEGER,
+  heart_rate INTEGER,
+  blood_sugar INTEGER,
+  blood_sugar_type TEXT CHECK (blood_sugar_type IN ('fasting', 'post_meal')),
+  weight DECIMAL(5,2),
+  measurement_time TIMESTAMP WITH TIME ZONE NOT NULL,
+  notes TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- 🎯 Health goals table
+CREATE TABLE health_goals (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  goal_type TEXT NOT NULL,
+  target_value DECIMAL(10,2),
+  target_range_min DECIMAL(10,2),
+  target_range_max DECIMAL(10,2),
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- 💊 Medications table
+CREATE TABLE medications (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  medication_name TEXT NOT NULL,
+  dosage TEXT,
+  frequency TEXT,
+  start_date DATE,
+  end_date DATE,
+  is_active BOOLEAN DEFAULT true,
+  notes TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+```
+
+## 🔐 Row Level Security (RLS)
+
+### RLS Policies
+```sql
+-- ✅ Enable RLS on all tables
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE health_records ENABLE ROW LEVEL SECURITY;
+ALTER TABLE health_goals ENABLE ROW LEVEL SECURITY;
+ALTER TABLE medications ENABLE ROW LEVEL SECURITY;
+
+-- 👤 Users can only access their own data
+CREATE POLICY "Users can view own profile" ON users
+  FOR SELECT USING (auth.uid() = id);
+
+CREATE POLICY "Users can update own profile" ON users
+  FOR UPDATE USING (auth.uid() = id);
+
+-- 📊 Health records policies
+CREATE POLICY "Users can view own health records" ON health_records
+  FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert own health records" ON health_records
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update own health records" ON health_records
+  FOR UPDATE USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete own health records" ON health_records
+  FOR DELETE USING (auth.uid() = user_id);
+```
+
+## 📊 Query Patterns
+
+### Data Fetching
+```typescript
+// ✅ Standard data fetching pattern
+export const fetchHealthRecords = async (userId: string) => {
+  const { data, error } = await supabase
+    .from('health_records')
+    .select('*')
+    .eq('user_id', userId)
+    .order('measurement_time', { ascending: false })
+  
+  if (error) {
+    console.error('건강 기록 조회 실패:', error)
+    throw new Error(error.message)
+  }
+  
+  return data
+}
+```
+
+### Data Insertion
+```typescript
+// ✅ Data insertion with validation
+export const addHealthRecord = async (record: Omit<HealthRecord, 'id' | 'created_at'>) => {
+  const { data, error } = await supabase
+    .from('health_records')
+    .insert([record])
+    .select()
+    .single()
+  
+  if (error) {
+    console.error('건강 기록 저장 실패:', error)
+    throw new Error(error.message)
+  }
+  
+  return data
+}
+```
+
+### Data Updates
+```typescript
+// ✅ Data update pattern
+export const updateHealthRecord = async (id: string, updates: Partial<HealthRecord>) => {
+  const { data, error } = await supabase
+    .from('health_records')
+    .update(updates)
+    .eq('id', id)
+    .select()
+    .single()
+  
+  if (error) {
+    console.error('건강 기록 수정 실패:', error)
+    throw new Error(error.message)
+  }
+  
+  return data
+}
+```
+
+### Data Deletion
+```typescript
+// ✅ Data deletion pattern
+export const deleteHealthRecord = async (id: string) => {
+  const { error } = await supabase
+    .from('health_records')
+    .delete()
+    .eq('id', id)
+  
+  if (error) {
+    console.error('건강 기록 삭제 실패:', error)
+    throw new Error(error.message)
+  }
+}
+```
+
+## 🔐 Authentication
+
+### OAuth Configuration
+```typescript
+// ✅ Google OAuth setup
+export const signInWithGoogle = async () => {
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: `${window.location.origin}/auth/callback`,
+      queryParams: {
+        access_type: 'offline',
+        prompt: 'consent',
+      },
+    },
+  })
+  
+  if (error) {
+    console.error('구글 로그인 실패:', error)
+    throw new Error(error.message)
+  }
+  
+  return data
+}
+```
+
+### Session Management
+```typescript
+// ✅ Session handling
+export const getCurrentSession = async () => {
+  const { data: { session }, error } = await supabase.auth.getSession()
+  
+  if (error) {
+    console.error('세션 조회 실패:', error)
+    throw new Error(error.message)
+  }
+  
+  return session
+}
+
+export const signOut = async () => {
+  const { error } = await supabase.auth.signOut()
+  
+  if (error) {
+    console.error('로그아웃 실패:', error)
+    throw new Error(error.message)
+  }
+}
+```
+
+## 📈 Real-time Subscriptions
+
+### Health Records Subscription
+```typescript
+// ✅ Real-time health records updates
+export const subscribeToHealthRecords = (userId: string, callback: (payload: any) => void) => {
+  const subscription = supabase
+    .channel('health_records_changes')
+    .on(
+      'postgres_changes',
+      {
+        event: '*',
+        schema: 'public',
+        table: 'health_records',
+        filter: `user_id=eq.${userId}`,
+      },
+      callback
+    )
+    .subscribe()
+  
+  return subscription
+}
+```
+
+## 🚨 Error Handling
+
+### Error Types
+```typescript
+// ✅ Define error types
+interface SupabaseError {
+  message: string
+  details?: string
+  hint?: string
+  code?: string
+}
+
+const handleSupabaseError = (error: SupabaseError): string => {
+  switch (error.code) {
+    case 'PGRST116':
+      return '데이터를 찾을 수 없습니다.'
+    case '23505':
+      return '이미 존재하는 데이터입니다.'
+    case '23503':
+      return '관련된 데이터가 있어 삭제할 수 없습니다.'
+    default:
+      return error.message || '알 수 없는 오류가 발생했습니다.'
+  }
+}
+```
+
+### Retry Logic
+```typescript
+// ✅ Implement retry logic for network errors
+export const fetchWithRetry = async <T>(
+  operation: () => Promise<T>,
+  maxRetries: number = 3
+): Promise<T> => {
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      return await operation()
+    } catch (error) {
+      if (i === maxRetries - 1) throw error
+      
+      // Wait before retry (exponential backoff)
+      await new Promise(resolve => setTimeout(resolve, Math.pow(2, i) * 1000))
+    }
+  }
+  
+  throw new Error('최대 재시도 횟수를 초과했습니다.')
+}
+```
+
+## 🔧 Utility Functions
+
+### Connection Testing
+```typescript
+// ✅ Test Supabase connection
+export const testSupabaseConnection = async (): Promise<boolean> => {
+  try {
+    const { data, error } = await supabase
+      .from('users')
+      .select('count')
+      .limit(1)
+    
+    if (error) {
+      console.error('Supabase 연결 실패:', error)
+      return false
+    }
+    
+    console.log('✅ Supabase 연결 성공!')
+    return true
+  } catch (error) {
+    console.error('Supabase 연결 오류:', error)
+    return false
+  }
+}
+```
+
+### Environment Validation
+```typescript
+// ✅ Validate environment variables
+export const validateEnvironment = () => {
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+  const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+  
+  const isValid = !!(supabaseUrl && supabaseKey)
+  
+  if (!isValid) {
+    console.warn('⚠️ Supabase 환경 변수가 설정되지 않았습니다.')
+  }
+  
+  return {
+    url: !!supabaseUrl,
+    key: !!supabaseKey,
+    allSet: isValid
+  }
+}
+```
+
+## 📊 Performance Optimization
+
+### Query Optimization
+```typescript
+// ✅ Use specific column selection
+const { data, error } = await supabase
+  .from('health_records')
+  .select('id, record_type, measurement_time, systolic_pressure, diastolic_pressure')
+  .eq('user_id', userId)
+  .order('measurement_time', { ascending: false })
+  .limit(10)
+
+// ✅ Use pagination for large datasets
+const { data, error } = await supabase
+  .from('health_records')
+  .select('*')
+  .eq('user_id', userId)
+  .range(offset, offset + limit - 1)
+  .order('measurement_time', { ascending: false })
+```
+
+### Caching Strategy
+```typescript
+// ✅ Implement simple caching
+const cache = new Map<string, { data: any; timestamp: number }>()
+const CACHE_DURATION = 5 * 60 * 1000 // 5 minutes
+
+export const getCachedData = async <T>(
+  key: string,
+  fetcher: () => Promise<T>
+): Promise<T> => {
+  const cached = cache.get(key)
+  
+  if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+    return cached.data
+  }
+  
+  const data = await fetcher()
+  cache.set(key, { data, timestamp: Date.now() })
+  
+  return data
+}
+```

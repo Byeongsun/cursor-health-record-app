@@ -1,0 +1,289 @@
+---
+globs: *.tsx
+description: Material-UI and UI Design Guidelines
+---
+
+# 🎨 Material-UI & UI Design Guidelines
+
+## 🎯 Theme Configuration
+The app uses a **senior-friendly theme** with enhanced accessibility:
+
+```typescript
+const theme = createTheme({
+  typography: {
+    fontSize: 16,              // 📏 Increased base font size
+    h1: { fontSize: '2.5rem' }, // 📝 Large headings
+    button: { fontSize: '1.1rem' } // 🔘 Readable button text
+  },
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          minHeight: 48,        // 👆 Larger touch targets
+          padding: '12px 24px'
+        }
+      }
+    }
+  }
+})
+```
+
+## 🎨 Color Scheme
+
+### Primary Colors
+- **🔵 Primary**: Blue (#1976d2) - Trust and reliability
+- **🔴 Secondary**: Red (#dc004e) - Health and urgency
+
+### Health Metric Colors
+- **❤️ Blood Pressure**: Red (#e74c3c)
+- **🩸 Blood Sugar**: Blue (#3498db)
+- **⚖️ Weight**: Green (#27ae60)
+- **💓 Heart Rate**: Orange (#f39c12)
+
+## 📝 Typography Patterns
+
+### Headings
+```typescript
+// ✅ Use semantic typography variants
+<Typography variant="h4" gutterBottom>
+  안녕하세요, {profile?.name}님! 👋
+</Typography>
+
+<Typography variant="h6" color="text.secondary">
+  오늘의 건강 상태를 확인해보세요
+</Typography>
+```
+
+### Body Text
+```typescript
+// ✅ Use appropriate variants for different content
+<Typography variant="body1">
+  일반적인 본문 텍스트
+</Typography>
+
+<Typography variant="body2" color="text.secondary">
+  보조 정보나 설명 텍스트
+</Typography>
+
+<Typography variant="caption" color="text.secondary">
+  작은 라벨이나 시간 정보
+</Typography>
+```
+
+## 🏗️ Layout Components
+
+### Container Usage
+```typescript
+// ✅ Use Container for page-level layout
+<Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+  {/* Page content */}
+</Container>
+```
+
+### Grid System
+```typescript
+// ✅ Use Grid for responsive layouts
+<Grid container spacing={3}>
+  <Grid item xs={12} md={6}>
+    {/* Content */}
+  </Grid>
+  <Grid item xs={12} md={6}>
+    {/* Content */}
+  </Grid>
+</Grid>
+```
+
+### Card Components
+```typescript
+// ✅ Use Cards for content grouping
+<Card sx={{ height: '100%' }}>
+  <CardContent sx={{ textAlign: 'center', py: 3 }}>
+    <Typography variant="h6" gutterBottom>
+      혈압 측정
+    </Typography>
+    <Button variant="contained" fullWidth>
+      기록하기
+    </Button>
+  </CardContent>
+</Card>
+```
+
+## 📋 Form Components
+
+### TextField Patterns
+```typescript
+// ✅ Use size="large" for better accessibility
+<TextField
+  fullWidth
+  label="수축기 혈압"
+  type="number"
+  size="large"
+  sx={{ fontSize: '1.2rem' }}
+  inputProps={{ 
+    style: { fontSize: '1.2rem' },
+    min: 50,
+    max: 300
+  }}
+/>
+```
+
+### Select Components
+```typescript
+// ✅ Use FormControl with proper labels
+<FormControl fullWidth size="large">
+  <InputLabel>측정 유형</InputLabel>
+  <Select
+    value={value}
+    onChange={handleChange}
+    label="측정 유형"
+  >
+    <MenuItem value="fasting">공복 혈당</MenuItem>
+    <MenuItem value="post_meal">식후 혈당</MenuItem>
+  </Select>
+</FormControl>
+```
+
+## 🔘 Button Patterns
+
+### Primary Actions
+```typescript
+// ✅ Use contained variant for primary actions
+<Button
+  variant="contained"
+  size="large"
+  startIcon={<SaveIcon />}
+  fullWidth
+>
+  건강 기록 저장하기
+</Button>
+```
+
+### Secondary Actions
+```typescript
+// ✅ Use outlined variant for secondary actions
+<Button
+  variant="outlined"
+  size="large"
+  onClick={handleCancel}
+>
+  취소
+</Button>
+```
+
+## 🎨 Icon Usage
+
+### Health Icons
+```typescript
+// ✅ Use semantic icons for health metrics
+import {
+  Favorite as BloodPressureIcon,      // ❤️ 혈압
+  Bloodtype as BloodSugarIcon,        // 🩸 혈당
+  MonitorWeight as WeightIcon,        // ⚖️ 체중
+  AccessTime as TimeIcon,             // ⏰ 시간
+  Save as SaveIcon,                   // 💾 저장
+} from '@mui/icons-material'
+```
+
+### Navigation Icons
+```typescript
+// ✅ Use consistent navigation icons
+import {
+  ArrowBack as ArrowBackIcon,         // ⬅️ 뒤로가기
+  Settings as SettingsIcon,           // ⚙️ 설정
+  ExitToApp as LogoutIcon,            // 🚪 로그아웃
+  Person as PersonIcon,               // 👤 사용자
+} from '@mui/icons-material'
+```
+
+## ♿ Accessibility Guidelines
+
+### ARIA Labels
+```typescript
+// ✅ Always provide aria-label for icon buttons
+<IconButton 
+  color="inherit" 
+  aria-label="설정으로 이동"
+  onClick={handleSettings}
+>
+  <SettingsIcon />
+</IconButton>
+```
+
+### Form Accessibility
+```typescript
+// ✅ Use fullWidth for form inputs
+<TextField
+  fullWidth
+  label="이메일"
+  type="email"
+  required
+  error={!!error}
+  helperText={error}
+/>
+```
+
+### Visual Feedback
+```typescript
+// ✅ Provide clear visual feedback
+<Alert 
+  severity="success" 
+  icon={<SuccessIcon />}
+  sx={{ mb: 3 }}
+>
+  건강 기록이 성공적으로 저장되었습니다!
+</Alert>
+```
+
+## 📱 Responsive Design
+
+### Breakpoint Usage
+```typescript
+// ✅ Use responsive breakpoints
+<Grid container spacing={3}>
+  <Grid item xs={12} sm={6} md={3}>
+    {/* Mobile: full width, Tablet: half, Desktop: quarter */}
+  </Grid>
+</Grid>
+```
+
+### Mobile-First Approach
+```typescript
+// ✅ Design for mobile first
+<Box sx={{ 
+  display: { xs: 'block', md: 'flex' },
+  gap: { xs: 2, md: 3 }
+}}>
+  {/* Content */}
+</Box>
+```
+
+## 🎨 Custom Styling
+
+### SX Prop Usage
+```typescript
+// ✅ Use sx prop for custom styling
+<Box sx={{
+  backgroundColor: '#f5f5f5',
+  borderRadius: 1,
+  p: 2,
+  mb: 2,
+  '&:hover': {
+    backgroundColor: '#e0e0e0',
+  }
+}}>
+  {/* Content */}
+</Box>
+```
+
+### Theme Integration
+```typescript
+// ✅ Use theme values in sx prop
+<Box sx={{
+  color: 'primary.main',
+  backgroundColor: 'background.paper',
+  border: 1,
+  borderColor: 'divider',
+}}>
+  {/* Content */}
+</Box>
+```

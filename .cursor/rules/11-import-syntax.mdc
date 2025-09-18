@@ -1,0 +1,210 @@
+---
+globs: *.ts,*.tsx
+description: Import Syntax and Type Safety Guidelines
+---
+
+# 📦 Import Syntax & Type Safety Guidelines
+
+## 🚨 Critical Import Rules
+
+### Type-Only Imports
+```typescript
+// ✅ ALWAYS use 'type' keyword for type-only imports
+import type { AppDispatch, RootState } from '../store'
+import type { PayloadAction } from '@reduxjs/toolkit'
+import type { HealthRecord } from '../store/slices/healthRecordsSlice'
+import type { User } from '../types/user'
+
+// ❌ NEVER import types without 'type' keyword
+import { AppDispatch } from '../store'  // This will cause runtime errors!
+import { PayloadAction } from '@reduxjs/toolkit'  // This will cause runtime errors!
+import { HealthRecord } from '../store/slices/healthRecordsSlice'  // This will cause runtime errors!
+```
+
+### Mixed Imports
+```typescript
+// ✅ CORRECT - Separate value and type imports
+import { useDispatch, useSelector } from 'react-redux'
+import type { AppDispatch, RootState } from '../store'
+
+// ✅ CORRECT - Group by category
+import React, { useState, useEffect } from 'react'
+import { Container, Typography, Button } from '@mui/material'
+import { useDispatch, useSelector } from 'react-redux'
+import { useAuth } from '../hooks/useAuth'
+import type { AppDispatch, RootState } from '../store'
+import type { PayloadAction } from '@reduxjs/toolkit'
+
+// ❌ WRONG - Don't mix value and type imports
+import { useDispatch, type AppDispatch } from 'react-redux'  // Don't do this!
+```
+
+## 🔍 Common Import Patterns
+
+### Redux Imports
+```typescript
+// ✅ Standard Redux import pattern
+import { useDispatch, useSelector } from 'react-redux'
+import type { AppDispatch, RootState } from '../store'
+import { fetchHealthRecords, addHealthRecord } from '../store/slices/healthRecordsSlice'
+import type { HealthRecord } from '../store/slices/healthRecordsSlice'
+
+// In component
+const MyComponent: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>()
+  const { records } = useSelector((state: RootState) => state.healthRecords)
+  // ...
+}
+```
+
+### Component Imports
+```typescript
+// ✅ Component import pattern
+import React, { useState, useEffect } from 'react'
+import { Container, Typography, Button } from '@mui/material'
+import { useAuth } from '../hooks/useAuth'
+import type { User } from '../types/user'
+
+// ✅ Custom component imports
+import HealthRecordEditDialog from '../components/HealthRecordEditDialog'
+import { CSVImportDialog } from '../components/CSVImportDialog'
+```
+
+### Utility Imports
+```typescript
+// ✅ Utility function imports
+import { formatDate, validateEmail } from '../utils/helpers'
+import { parseCSVFile, generateCSVTemplate } from '../utils/csvParser'
+import type { CSVHealthRecord } from '../utils/csvParser'
+```
+
+## 🚫 Common Mistakes to Avoid
+
+### 1. Type Import Without 'type' Keyword
+```typescript
+// ❌ This will cause "does not provide an export named" error
+import { AppDispatch } from '../store'
+import { PayloadAction } from '@reduxjs/toolkit'
+
+// ✅ Always use 'type' keyword
+import type { AppDispatch } from '../store'
+import type { PayloadAction } from '@reduxjs/toolkit'
+```
+
+### 2. Mixing Value and Type Imports
+```typescript
+// ❌ Don't mix value and type imports in same statement
+import { useDispatch, type AppDispatch } from 'react-redux'
+
+// ✅ Separate them
+import { useDispatch } from 'react-redux'
+import type { AppDispatch } from '../store'
+```
+
+### 3. Incorrect Import Paths
+```typescript
+// ❌ Wrong relative paths
+import { AppDispatch } from '../../store'  // Wrong path
+import { HealthRecord } from '../store/slices/healthRecordsSlice'  // Missing 'type'
+
+// ✅ Correct paths and syntax
+import type { AppDispatch } from '../store'
+import type { HealthRecord } from '../store/slices/healthRecordsSlice'
+```
+
+## 🔧 Import Organization
+
+### Standard Import Order
+```typescript
+// 1. React imports
+import React, { useState, useEffect, useCallback } from 'react'
+
+// 2. Third-party library imports
+import { Container, Typography, Button, Dialog } from '@mui/material'
+import { useDispatch, useSelector } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
+
+// 3. Internal component imports
+import { useAuth } from '../hooks/useAuth'
+import HealthRecordEditDialog from '../components/HealthRecordEditDialog'
+import { CSVImportDialog } from '../components/CSVImportDialog'
+
+// 4. Type imports (with 'type' keyword)
+import type { AppDispatch, RootState } from '../store'
+import type { PayloadAction } from '@reduxjs/toolkit'
+import type { HealthRecord } from '../store/slices/healthRecordsSlice'
+import type { User } from '../types/user'
+```
+
+### File-Specific Imports
+```typescript
+// For store files (slices, index.ts)
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
+import type { PayloadAction } from '@reduxjs/toolkit'
+import { supabase } from '../../lib/supabase'
+
+// For component files
+import React, { useState, useEffect } from 'react'
+import { Container, Typography, Button } from '@mui/material'
+import { useDispatch, useSelector } from 'react-redux'
+import type { AppDispatch, RootState } from '../store'
+
+// For utility files
+import { format, parseISO } from 'date-fns'
+import type { CSVHealthRecord } from './types'
+```
+
+## 🧪 Testing Import Patterns
+
+### Test File Imports
+```typescript
+// ✅ Test file import pattern
+import React from 'react'
+import { render, screen, fireEvent } from '@testing-library/react'
+import { Provider } from 'react-redux'
+import { configureStore } from '@reduxjs/toolkit'
+import type { RootState } from '../store'
+import MyComponent from '../MyComponent'
+```
+
+## 📋 Pre-commit Checklist
+
+Before committing any file with imports, check:
+
+- [ ] All type imports use `type` keyword
+- [ ] No mixing of value and type imports in same statement
+- [ ] Import paths are correct and relative
+- [ ] Imports are organized by category
+- [ ] No unused imports
+- [ ] Redux types (`AppDispatch`, `RootState`) use `type` keyword
+- [ ] Third-party library types use `type` keyword
+
+## 🚨 Error Prevention
+
+### Common Runtime Errors
+```typescript
+// These will cause runtime errors:
+import { AppDispatch } from '../store'  // ❌ "does not provide an export named 'AppDispatch'"
+import { PayloadAction } from '@reduxjs/toolkit'  // ❌ "does not provide an export named 'PayloadAction'"
+
+// These are correct:
+import type { AppDispatch } from '../store'  // ✅ Works correctly
+import type { PayloadAction } from '@reduxjs/toolkit'  // ✅ Works correctly
+```
+
+### IDE Configuration
+Make sure your IDE/editor is configured to:
+- Show TypeScript errors immediately
+- Highlight type-only imports
+- Suggest `type` keyword for type imports
+- Auto-organize imports correctly
+
+## 🎯 Best Practices
+
+1. **Always use `type` keyword** for type-only imports
+2. **Separate value and type imports** into different statements
+3. **Organize imports by category** (React, third-party, internal, types)
+4. **Use relative paths** correctly
+5. **Remove unused imports** regularly
+6. **Test imports** by running the application
+7. **Use TypeScript strict mode** to catch import errors early

@@ -1,0 +1,350 @@
+---
+globs: src/store/**/*.ts
+description: Redux and State Management Guidelines
+---
+
+# 🗄️ Redux & State Management Guidelines
+
+## 🏗️ Store Structure
+```typescript
+{
+  auth: {
+    user: User | null,
+    profile: UserProfile | null,
+    loading: boolean,
+    error: string | null
+  },
+  healthRecords: {
+    records: HealthRecord[],
+    loading: boolean,
+    error: string | null
+  }
+}
+```
+
+## 📦 Slice Patterns
+
+### Async Thunks
+```typescript
+// ✅ Use createAsyncThunk for async actions
+export const fetchHealthRecords = createAsyncThunk(
+  'healthRecords/fetchHealthRecords',
+  async (userId: string) => {
+    const { data, error } = await supabase
+      .from('health_records')
+      .select('*')
+      .eq('user_id', userId)
+      .order('measurement_time', { ascending: false })
+    
+    if (error) throw error
+    return data
+  }
+)
+```
+
+### Reducer Patterns
+```typescript
+// ✅ Standard slice structure
+const slice = createSlice({
+  name: 'sliceName',
+  initialState,
+  reducers: {
+    clearError: (state) => {
+      state.error = null
+    },
+    setLoading: (state, action: PayloadAction<boolean>) => {
+      state.loading = action.payload
+    }
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(asyncThunk.pending, (state) => {
+        state.loading = true
+        state.error = null
+      })
+      .addCase(asyncThunk.fulfilled, (state, action) => {
+        state.loading = false
+        state.data = action.payload
+      })
+      .addCase(asyncThunk.rejected, (state, action) => {
+        state.loading = false
+        state.error = action.error.message || '기본 에러 메시지'
+      })
+  }
+})
+```
+
+## 🏷️ Type Safety
+
+### Store Types
+```typescript
+// ✅ ALWAYS use type imports for Redux types
+import type { RootState, AppDispatch } from '../store'
+
+// In components
+const dispatch = useDispatch<AppDispatch>()
+const { user, profile } = useSelector((state: RootState) => state.auth)
+```
+
+### Type Import Rules
+```typescript
+// ✅ CORRECT - Use 'type' keyword for type-only imports
+import type { RootState, AppDispatch } from '../store'
+import type { PayloadAction } from '@reduxjs/toolkit'
+import type { HealthRecord } from '../store/slices/healthRecordsSlice'
+
+// ❌ WRONG - This will cause runtime errors!
+import { RootState, AppDispatch } from '../store'  // Runtime error!
+import { PayloadAction } from '@reduxjs/toolkit'  // Runtime error!
+
+// ✅ CORRECT - Separate value and type imports
+import { useDispatch, useSelector } from 'react-redux'
+import type { AppDispatch, RootState } from '../store'
+```
+
+### Action Types
+```typescript
+// ✅ Use PayloadAction for typed actions
+import type { PayloadAction } from '@reduxjs/toolkit'
+
+interface SetUserAction extends PayloadAction<User | null> {
+  type: 'auth/setUser'
+  payload: User | null
+}
+```
+
+## 🔄 Async Action Patterns
+
+### Data Fetching
+```typescript
+// ✅ Standard data fetching pattern
+export const fetchHealthRecords = createAsyncThunk(
+  'healthRecords/fetchHealthRecords',
+  async (userId: string, { rejectWithValue }) => {
+    try {
+      const { data, error } = await supabase
+        .from('health_records')
+        .select('*')
+        .eq('user_id', userId)
+      
+      if (error) {
+        return rejectWithValue(error.message)
+      }
+      
+      return data
+    } catch (error) {
+      return rejectWithValue('네트워크 오류가 발생했습니다.')
+    }
+  }
+)
+```
+
+### Data Creation
+```typescript
+// ✅ Data creation pattern
+export const addHealthRecord = createAsyncThunk(
+  'healthRecords/addHealthRecord',
+  async (record: Omit<HealthRecord, 'id' | 'created_at'>, { rejectWithValue }) => {
+    try {
+      const { data, error } = await supabase
+        .from('health_records')
+        .insert([record])
+        .select()
+        .single()
+      
+      if (error) {
+        return rejectWithValue(error.message)
+      }
+      
+      return data
+    } catch (error) {
+      return rejectWithValue('건강 기록 저장에 실패했습니다.')
+    }
+  }
+)
+```
+
+## 🚨 Error Handling
+
+### Error States
+```typescript
+// ✅ Always handle error states
+const initialState = {
+  data: [],
+  loading: false,
+  error: null as string | null
+}
+
+// In extraReducers
+.addCase(fetchData.rejected, (state, action) => {
+  state.loading = false
+  state.error = action.payload as string || '알 수 없는 오류가 발생했습니다.'
+})
+```
+
+### Error Clearing
+```typescript
+// ✅ Provide error clearing actions
+reducers: {
+  clearError: (state) => {
+    state.error = null
+  },
+  clearAll: (state) => {
+    state.data = []
+    state.loading = false
+    state.error = null
+  }
+}
+```
+
+## 🎯 State Updates
+
+### Optimistic Updates
+```typescript
+// ✅ Use optimistic updates for better UX
+.addCase(addHealthRecord.pending, (state, action) => {
+  state.loading = true
+  // Add temporary record for immediate feedback
+  const tempRecord = {
+    ...action.meta.arg,
+    id: `temp-${Date.now()}`,
+    created_at: new Date().toISOString()
+  }
+  state.records.unshift(tempRecord)
+})
+```
+
+### Data Normalization
+```typescript
+// ✅ Consider data normalization for complex state
+interface NormalizedState {
+  entities: Record<string, HealthRecord>
+  ids: string[]
+  loading: boolean
+  error: string | null
+}
+```
+
+## 🔧 Custom Hooks
+
+### Selector Hooks
+```typescript
+// ✅ Create custom selector hooks
+export const useHealthRecords = () => {
+  const { records, loading, error } = useSelector(
+    (state: RootState) => state.healthRecords
+  )
+  
+  return { records, loading, error }
+}
+
+export const useAuth = () => {
+  const { user, profile, loading, error } = useSelector(
+    (state: RootState) => state.auth
+  )
+  
+  return { 
+    user, 
+    profile, 
+    loading, 
+    error, 
+    isAuthenticated: !!user 
+  }
+}
+```
+
+### Action Hooks
+```typescript
+// ✅ Create custom action hooks
+export const useHealthRecordActions = () => {
+  const dispatch = useDispatch<AppDispatch>()
+  
+  const fetchRecords = useCallback(
+    (userId: string) => dispatch(fetchHealthRecords(userId)),
+    [dispatch]
+  )
+  
+  const addRecord = useCallback(
+    (record: Omit<HealthRecord, 'id' | 'created_at'>) => 
+      dispatch(addHealthRecord(record)),
+    [dispatch]
+  )
+  
+  return { fetchRecords, addRecord }
+}
+```
+
+## 📊 Performance Optimization
+
+### Memoization
+```typescript
+// ✅ Use memoized selectors for expensive computations
+const selectHealthRecordsByType = createSelector(
+  [(state: RootState) => state.healthRecords.records],
+  (records) => {
+    return records.reduce((acc, record) => {
+      if (!acc[record.record_type]) {
+        acc[record.record_type] = []
+      }
+      acc[record.record_type].push(record)
+      return acc
+    }, {} as Record<string, HealthRecord[]>)
+  }
+)
+```
+
+### Lazy Loading
+```typescript
+// ✅ Implement lazy loading for large datasets
+export const fetchHealthRecordsPage = createAsyncThunk(
+  'healthRecords/fetchPage',
+  async ({ userId, page, limit }: { userId: string; page: number; limit: number }) => {
+    const { data, error } = await supabase
+      .from('health_records')
+      .select('*')
+      .eq('user_id', userId)
+      .order('measurement_time', { ascending: false })
+      .range(page * limit, (page + 1) * limit - 1)
+    
+    if (error) throw error
+    return { data, page, hasMore: data.length === limit }
+  }
+)
+```
+
+## 🧪 Testing Patterns
+
+### Mock Store
+```typescript
+// ✅ Create mock store for testing
+export const createMockStore = (initialState?: Partial<RootState>) => {
+  return configureStore({
+    reducer: {
+      auth: authReducer,
+      healthRecords: healthRecordsReducer,
+    },
+    preloadedState: initialState,
+  })
+}
+```
+
+### Test Async Thunks
+```typescript
+// ✅ Test async thunks
+describe('fetchHealthRecords', () => {
+  it('should fetch health records successfully', async () => {
+    const mockData = [{ id: '1', record_type: 'blood_pressure' }]
+    jest.spyOn(supabase.from('health_records'), 'select').mockReturnValue({
+      eq: jest.fn().mockReturnValue({
+        order: jest.fn().mockResolvedValue({ data: mockData, error: null })
+      })
+    })
+    
+    const store = createMockStore()
+    const result = await store.dispatch(fetchHealthRecords('user1'))
+    
+    expect(result.type).toBe('fetchHealthRecords/fulfilled')
+    expect(result.payload).toEqual(mockData)
+  })
+})
+```

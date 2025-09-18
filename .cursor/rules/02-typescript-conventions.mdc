@@ -1,0 +1,282 @@
+---
+globs: *.ts,*.tsx
+description: TypeScript and Code Style Guidelines
+---
+
+# 📝 TypeScript & Code Style Guidelines
+
+## ⚙️ TypeScript Configuration
+- **Target**: ES2022
+- **Strict Mode**: Always enabled
+- **JSX**: React JSX transform
+- **Module Resolution**: Bundler mode
+
+## 📦 Import Order & Syntax
+1. **React imports** (React, hooks, etc.)
+2. **Third-party libraries** (MUI, Redux, etc.)
+3. **Internal components and utilities**
+4. **Type imports** (with `type` keyword)
+
+```typescript
+// ✅ Correct import order
+import React, { useState, useEffect } from 'react'
+import { Container, Typography, Button } from '@mui/material'
+import { useDispatch, useSelector } from 'react-redux'
+import { useAuth } from '../hooks/useAuth'
+import type { PayloadAction } from '@reduxjs/toolkit'
+```
+
+### Import Completeness & Error Prevention
+- **ALWAYS import all used components, functions, and types**
+- **Verify imports before using any component or function**
+- **Use consistent naming conventions for imports**
+- **NEVER use undefined variables or components**
+
+```typescript
+// ✅ Complete imports
+import { 
+  Container, 
+  Typography, 
+  Button, 
+  IconButton,  // ← Don't forget IconButton!
+  ArrowBack as ArrowBackIcon  // ← Don't forget icons!
+} from '@mui/material'
+
+// ❌ Missing imports will cause runtime errors
+<IconButton>  // ← Error: IconButton is not defined
+<ArrowBackIcon />  // ← Error: ArrowBackIcon is not defined
+```
+
+### Material-UI Icon Import Checklist
+**Before using any MUI icon, ensure it's imported:**
+
+```typescript
+// ✅ Always import icons from @mui/icons-material
+import {
+  ArrowBack as ArrowBackIcon,
+  ArrowForward as ArrowForwardIcon,
+  Home as HomeIcon,
+  Settings as SettingsIcon,
+  Notifications as NotificationsIcon,
+  Person as PersonIcon,
+  ExitToApp as LogoutIcon,
+  Add as AddIcon,
+  Edit as EditIcon,
+  Delete as DeleteIcon,
+  Search as SearchIcon,
+  FilterList as FilterIcon,
+  Download as DownloadIcon,
+  Upload as UploadIcon,
+  Refresh as RefreshIcon,
+  Flag as FlagIcon,
+  Timeline as TimelineIcon,
+  BarChart as BarChartIcon,
+  TableChart as TableIcon,
+  PieChart as PieChartIcon,
+  MonitorHeart as MonitorHeartIcon,
+  Bloodtype as BloodtypeIcon,
+  Scale as ScaleIcon,
+  List as ListIcon,
+  CloudUpload as UploadIcon,
+  CloudDownload as DownloadIcon,
+} from '@mui/icons-material'
+```
+
+### Common Import Errors to Avoid
+1. **IconButton is not defined** → Add `IconButton` to MUI imports
+2. **ArrowBackIcon is not defined** → Add `ArrowBack as ArrowBackIcon` to icon imports
+3. **DeleteIcon is not defined** → Add `Delete as DeleteIcon` to icon imports
+4. **EditIcon is not defined** → Add `Edit as EditIcon` to icon imports
+5. **Any MUI component is not defined** → Check MUI imports section
+
+### Type Import Rules
+```typescript
+// ✅ ALWAYS use 'type' keyword for type-only imports
+import type { AppDispatch, RootState } from '../store'
+import type { PayloadAction } from '@reduxjs/toolkit'
+import type { HealthRecord } from '../store/slices/healthRecordsSlice'
+
+// ❌ NEVER import types without 'type' keyword
+import { AppDispatch } from '../store'  // This will cause runtime errors!
+import { PayloadAction } from '@reduxjs/toolkit'  // This will cause runtime errors!
+
+// ✅ For mixed imports (values + types), separate them
+import { useDispatch, useSelector } from 'react-redux'
+import type { AppDispatch, RootState } from '../store'
+```
+
+## 🏷️ Type Definitions
+
+### Interface vs Type
+```typescript
+// ✅ Use interface for object shapes
+interface UserProfile {
+  id: string
+  email: string
+  name: string
+  birth_year?: number
+  gender?: string
+}
+
+// ✅ Use type for unions and primitives
+type RecordType = 'blood_pressure' | 'blood_sugar' | 'weight'
+type HealthStatus = 'normal' | 'warning' | 'danger'
+```
+
+### Component Props
+```typescript
+// ✅ Always use explicit types for props
+interface ComponentProps {
+  title: string
+  isVisible?: boolean
+  onAction: (id: string) => void
+}
+
+const ComponentName: React.FC<ComponentProps> = ({ 
+  title, 
+  isVisible = false, 
+  onAction 
+}) => {
+  // Component implementation
+}
+```
+
+## 🔄 Redux Patterns
+
+### Async Thunks
+```typescript
+// ✅ Use createAsyncThunk for async actions
+export const fetchHealthRecords = createAsyncThunk(
+  'healthRecords/fetchHealthRecords',
+  async (userId: string) => {
+    const { data, error } = await supabase
+      .from('health_records')
+      .select('*')
+      .eq('user_id', userId)
+    
+    if (error) throw error
+    return data
+  }
+)
+```
+
+### Redux Type Imports
+```typescript
+// ✅ ALWAYS use type imports for Redux types
+import type { PayloadAction } from '@reduxjs/toolkit'
+import type { RootState, AppDispatch } from '../store'
+
+// ✅ Component with Redux types
+const MyComponent: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>()  // Use AppDispatch type
+  const { data } = useSelector((state: RootState) => state.healthRecords)
+  
+  return <div>{/* Component JSX */}</div>
+}
+```
+
+## 🏗️ Component Structure
+```typescript
+// ✅ Standard component structure
+const ComponentName: React.FC<Props> = ({ prop1, prop2 }) => {
+  // 1. Hooks at the top
+  const [state, setState] = useState()
+  const dispatch = useDispatch<AppDispatch>()
+  const { user } = useAuth()
+  
+  // 2. Event handlers
+  const handleClick = () => {
+    // Implementation
+  }
+  
+  // 3. Effects
+  useEffect(() => {
+    // Side effects
+  }, [])
+  
+  // 4. Render
+  return (
+    <div>
+      {/* JSX */}
+    </div>
+  )
+}
+```
+
+## 💬 Comments & Documentation
+- **Korean Comments**: Use Korean for all comments and documentation
+- **Clear Descriptions**: Keep comments clear and descriptive
+- **Business Logic**: Document complex business logic
+- **JSDoc**: Use JSDoc for function documentation
+
+```typescript
+/**
+ * 건강 기록을 가져오는 함수
+ * @param userId 사용자 ID
+ * @returns 건강 기록 배열
+ */
+const fetchUserHealthRecords = async (userId: string): Promise<HealthRecord[]> => {
+  // 구현 내용
+}
+```
+
+## 🚫 Common Mistakes to Avoid
+
+### Type Import Errors
+- ❌ **NEVER** import types without `type` keyword
+  ```typescript
+  import { AppDispatch } from '../store'  // ❌ Runtime error!
+  import { PayloadAction } from '@reduxjs/toolkit'  // ❌ Runtime error!
+  ```
+- ✅ **ALWAYS** use `type` keyword for type-only imports
+  ```typescript
+  import type { AppDispatch } from '../store'  // ✅ Correct
+  import type { PayloadAction } from '@reduxjs/toolkit'  // ✅ Correct
+  ```
+
+### General TypeScript Errors
+- ❌ Don't use `any` type
+- ❌ Don't ignore TypeScript errors
+- ❌ Don't use `@ts-ignore` without good reason
+- ❌ Don't mix interface and type for the same concept
+- ✅ Always use explicit return types for functions
+- ✅ Always handle null/undefined cases
+
+### Import Organization
+- ❌ Don't mix value and type imports in the same statement
+- ✅ Separate value imports from type imports
+- ✅ Group imports by category (React, third-party, internal, types)
+
+### Import Completeness & Error Prevention
+- ✅ **ALWAYS** import all used components, functions, and types
+- ✅ **ALWAYS** verify imports before using them in JSX or code
+- ✅ **ALWAYS** use consistent import naming (aliases)
+- ❌ **NEVER** use undefined variables or components
+- ❌ **NEVER** forget to import Material-UI icons
+
+```typescript
+// ✅ Correct: All used icons are imported
+import {
+  Add as AddIcon,
+  Delete as DeleteIcon,
+  Edit as EditIcon,
+  Settings as SettingsIcon,
+} from '@mui/icons-material'
+
+// ❌ Wrong: Using DeleteIcon without importing it
+<Button startIcon={<DeleteIcon />}>Delete</Button>  // ReferenceError!
+```
+
+### Material-UI Icon Import Checklist
+Before using any Material-UI icon, ensure it's imported:
+1. **Check the import statement** - Is the icon imported from `@mui/icons-material`?
+2. **Verify the alias** - Is the icon properly aliased (e.g., `Delete as DeleteIcon`)?
+3. **Test the usage** - Does the icon render without errors?
+4. **Check for typos** - Is the icon name spelled correctly?
+
+### Common Import Errors to Avoid
+- ❌ **Missing icon imports**: `DeleteIcon is not defined`
+- ❌ **Missing component imports**: `Button is not defined`
+- ❌ **Missing type imports**: `AppDispatch is not defined`
+- ❌ **Wrong import path**: `Cannot resolve module`
+- ❌ **Circular imports**: `Circular dependency detected`

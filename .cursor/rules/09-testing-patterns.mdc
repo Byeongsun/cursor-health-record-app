@@ -1,0 +1,545 @@
+---
+globs: **/*.test.ts,**/*.test.tsx,**/*.spec.ts,**/*.spec.tsx
+description: Testing Patterns and Guidelines
+---
+
+# 🧪 Testing Patterns & Guidelines
+
+## 🏗️ Testing Architecture
+
+### Test Structure
+```
+src/
+├── __tests__/              # 🧪 Test files
+│   ├── components/         # Component tests
+│   ├── pages/             # Page tests
+│   ├── hooks/             # Hook tests
+│   ├── store/             # Redux tests
+│   └── utils/             # Utility tests
+├── __mocks__/             # 🎭 Mock files
+│   ├── supabase.ts        # Supabase mocks
+│   └── react-router.ts    # Router mocks
+└── test-utils/            # 🔧 Test utilities
+    ├── render.tsx         # Custom render
+    └── test-data.ts       # Test data
+```
+
+## 🎭 Mocking Strategies
+
+### Supabase Mocking
+```typescript
+// ✅ Mock Supabase client
+export const mockSupabase = {
+  auth: {
+    getSession: jest.fn(),
+    signInWithPassword: jest.fn(),
+    signUp: jest.fn(),
+    signOut: jest.fn(),
+    onAuthStateChange: jest.fn(),
+    signInWithOAuth: jest.fn()
+  },
+  from: jest.fn(() => ({
+    select: jest.fn().mockReturnThis(),
+    insert: jest.fn().mockReturnThis(),
+    update: jest.fn().mockReturnThis(),
+    delete: jest.fn().mockReturnThis(),
+    eq: jest.fn().mockReturnThis(),
+    order: jest.fn().mockReturnThis(),
+    limit: jest.fn().mockReturnThis(),
+    single: jest.fn()
+  }))
+}
+
+// Mock the supabase module
+jest.mock('../lib/supabase', () => ({
+  supabase: mockSupabase
+}))
+```
+
+### Redux Store Mocking
+```typescript
+// ✅ Mock Redux store
+export const createMockStore = (initialState?: Partial<RootState>) => {
+  return configureStore({
+    reducer: {
+      auth: authReducer,
+      healthRecords: healthRecordsReducer,
+    },
+    preloadedState: initialState,
+    middleware: (getDefaultMiddleware) =>
+      getDefaultMiddleware({
+        serializableCheck: {
+          ignoredActions: [FLUSH, REVALIDATE, PAUSE, PERSIST, PURGE, REGISTER],
+        },
+      }),
+  })
+}
+
+// Test wrapper with providers
+export const renderWithProviders = (
+  ui: React.ReactElement,
+  { preloadedState = {}, store = createMockStore(preloadedState), ...renderOptions } = {}
+) => {
+  const Wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+    <Provider store={store}>
+      <Router>
+        <ThemeProvider theme={theme}>
+          {children}
+        </ThemeProvider>
+      </Router>
+    </Provider>
+  )
+
+  return { store, ...render(ui, { wrapper: Wrapper, ...renderOptions }) }
+}
+```
+
+## 🧪 Component Testing
+
+### Basic Component Test
+```typescript
+// ✅ Basic component test
+import { render, screen, fireEvent } from '@testing-library/react'
+import { renderWithProviders } from '../test-utils/render'
+import HealthRecordPage from '../pages/HealthRecordPage'
+
+describe('HealthRecordPage', () => {
+  it('renders health record form', () => {
+    renderWithProviders(<HealthRecordPage />)
+    
+    expect(screen.getByText('건강 수치 기록하기')).toBeInTheDocument()
+    expect(screen.getByText('측정 유형을 선택해주세요')).toBeInTheDocument()
+  })
+
+  it('shows blood pressure form when blood pressure is selected', () => {
+    renderWithProviders(<HealthRecordPage />)
+    
+    const bloodPressureCard = screen.getByText('혈압 측정')
+    fireEvent.click(bloodPressureCard)
+    
+    expect(screen.getByText('수축기 혈압')).toBeInTheDocument()
+    expect(screen.getByText('이완기 혈압')).toBeInTheDocument()
+  })
+})
+```
+
+### Form Testing
+```typescript
+// ✅ Form interaction testing
+describe('Health Record Form', () => {
+  it('validates required fields', async () => {
+    renderWithProviders(<HealthRecordPage />)
+    
+    // Select blood pressure type
+    const bloodPressureCard = screen.getByText('혈압 측정')
+    fireEvent.click(bloodPressureCard)
+    
+    // Try to submit without filling required fields
+    const submitButton = screen.getByText('건강 기록 저장하기')
+    fireEvent.click(submitButton)
+    
+    expect(screen.getByText('수축기와 이완기 혈압을 모두 입력해주세요')).toBeInTheDocument()
+  })
+
+  it('submits form with valid data', async () => {
+    const mockAddHealthRecord = jest.fn()
+    jest.spyOn(require('../store/slices/healthRecordsSlice'), 'addHealthRecord')
+      .mockReturnValue(mockAddHealthRecord)
+    
+    renderWithProviders(<HealthRecordPage />)
+    
+    // Select blood pressure type
+    const bloodPressureCard = screen.getByText('혈압 측정')
+    fireEvent.click(bloodPressureCard)
+    
+    // Fill form
+    fireEvent.change(screen.getByLabelText('수축기 혈압'), { target: { value: '120' } })
+    fireEvent.change(screen.getByLabelText('이완기 혈압'), { target: { value: '80' } })
+    
+    // Submit
+    const submitButton = screen.getByText('건강 기록 저장하기')
+    fireEvent.click(submitButton)
+    
+    expect(mockAddHealthRecord).toHaveBeenCalledWith({
+      user_id: 'test-user-id',
+      record_type: 'blood_pressure',
+      systolic_pressure: 120,
+      diastolic_pressure: 80,
+      measurement_time: expect.any(String),
+      notes: ''
+    })
+  })
+})
+```
+
+## 🎣 Hook Testing
+
+### Custom Hook Test
+```typescript
+// ✅ Custom hook testing
+import { renderHook, act } from '@testing-library/react'
+import { Provider } from 'react-redux'
+import { useAuth } from '../hooks/useAuth'
+import { createMockStore } from '../test-utils/render'
+
+describe('useAuth', () => {
+  it('returns authentication state', () => {
+    const mockStore = createMockStore({
+      auth: {
+        user: { id: 'test-user', email: 'test@example.com' },
+        profile: { id: 'test-user', name: 'Test User' },
+        loading: false,
+        error: null
+      }
+    })
+
+    const wrapper = ({ children }: { children: React.ReactNode }) => (
+      <Provider store={mockStore}>{children}</Provider>
+    )
+
+    const { result } = renderHook(() => useAuth(), { wrapper })
+
+    expect(result.current.user).toEqual({ id: 'test-user', email: 'test@example.com' })
+    expect(result.current.isAuthenticated).toBe(true)
+  })
+})
+```
+
+## 🗄️ Redux Testing
+
+### Async Thunk Testing
+```typescript
+// ✅ Async thunk testing
+import { configureStore } from '@reduxjs/toolkit'
+import { fetchHealthRecords, addHealthRecord } from '../store/slices/healthRecordsSlice'
+import { mockSupabase } from '../__mocks__/supabase'
+
+describe('healthRecordsSlice', () => {
+  let store: ReturnType<typeof configureStore>
+
+  beforeEach(() => {
+    store = configureStore({
+      reducer: {
+        healthRecords: healthRecordsReducer
+      }
+    })
+    jest.clearAllMocks()
+  })
+
+  it('fetches health records successfully', async () => {
+    const mockData = [
+      { id: '1', record_type: 'blood_pressure', systolic_pressure: 120, diastolic_pressure: 80 }
+    ]
+    
+    mockSupabase.from.mockReturnValue({
+      select: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockReturnThis(),
+      order: jest.fn().mockResolvedValue({ data: mockData, error: null })
+    })
+
+    const result = await store.dispatch(fetchHealthRecords('user1'))
+
+    expect(result.type).toBe('healthRecords/fetchHealthRecords/fulfilled')
+    expect(result.payload).toEqual(mockData)
+    
+    const state = store.getState()
+    expect(state.healthRecords.records).toEqual(mockData)
+    expect(state.healthRecords.loading).toBe(false)
+  })
+
+  it('handles fetch health records error', async () => {
+    const errorMessage = 'Network error'
+    
+    mockSupabase.from.mockReturnValue({
+      select: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockReturnThis(),
+      order: jest.fn().mockResolvedValue({ data: null, error: { message: errorMessage } })
+    })
+
+    const result = await store.dispatch(fetchHealthRecords('user1'))
+
+    expect(result.type).toBe('healthRecords/fetchHealthRecords/rejected')
+    expect(result.payload).toBe(errorMessage)
+    
+    const state = store.getState()
+    expect(state.healthRecords.error).toBe(errorMessage)
+    expect(state.healthRecords.loading).toBe(false)
+  })
+})
+```
+
+## 🎭 Integration Testing
+
+### Page Integration Test
+```typescript
+// ✅ Page integration testing
+describe('DashboardPage Integration', () => {
+  it('displays user health records', async () => {
+    const mockRecords = [
+      {
+        id: '1',
+        record_type: 'blood_pressure',
+        systolic_pressure: 120,
+        diastolic_pressure: 80,
+        measurement_time: '2024-01-01T10:00:00Z'
+      }
+    ]
+
+    mockSupabase.from.mockReturnValue({
+      select: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockReturnThis(),
+      order: jest.fn().mockResolvedValue({ data: mockRecords, error: null })
+    })
+
+    renderWithProviders(<DashboardPage />, {
+      preloadedState: {
+        auth: {
+          user: { id: 'user1', email: 'test@example.com' },
+          profile: { id: 'user1', name: 'Test User' },
+          loading: false,
+          error: null
+        }
+      }
+    })
+
+    // Wait for records to load
+    await waitFor(() => {
+      expect(screen.getByText('120/80 mmHg')).toBeInTheDocument()
+    })
+  })
+})
+```
+
+## 🔧 Test Utilities
+
+### Custom Render Function
+```typescript
+// ✅ Custom render with providers
+import { render, RenderOptions } from '@testing-library/react'
+import { Provider } from 'react-redux'
+import { BrowserRouter } from 'react-router-dom'
+import { ThemeProvider } from '@mui/material/styles'
+import { configureStore } from '@reduxjs/toolkit'
+import { theme } from '../App'
+import authReducer from '../store/slices/authSlice'
+import healthRecordsReducer from '../store/slices/healthRecordsSlice'
+
+interface ExtendedRenderOptions extends Omit<RenderOptions, 'wrapper'> {
+  preloadedState?: Partial<RootState>
+  store?: ReturnType<typeof configureStore>
+}
+
+export function renderWithProviders(
+  ui: React.ReactElement,
+  {
+    preloadedState = {},
+    store = configureStore({
+      reducer: {
+        auth: authReducer,
+        healthRecords: healthRecordsReducer,
+      },
+      preloadedState,
+    }),
+    ...renderOptions
+  }: ExtendedRenderOptions = {}
+) {
+  function Wrapper({ children }: { children: React.ReactNode }) {
+    return (
+      <Provider store={store}>
+        <BrowserRouter>
+          <ThemeProvider theme={theme}>
+            {children}
+          </ThemeProvider>
+        </BrowserRouter>
+      </Provider>
+    )
+  }
+
+  return { store, ...render(ui, { wrapper: Wrapper, ...renderOptions }) }
+}
+```
+
+### Test Data Factories
+```typescript
+// ✅ Test data factories
+export const createMockUser = (overrides: Partial<User> = {}): User => ({
+  id: 'test-user-id',
+  email: 'test@example.com',
+  created_at: '2024-01-01T00:00:00Z',
+  updated_at: '2024-01-01T00:00:00Z',
+  ...overrides
+} as User)
+
+export const createMockHealthRecord = (overrides: Partial<HealthRecord> = {}): HealthRecord => ({
+  id: 'test-record-id',
+  user_id: 'test-user-id',
+  record_type: 'blood_pressure',
+  systolic_pressure: 120,
+  diastolic_pressure: 80,
+  measurement_time: '2024-01-01T10:00:00Z',
+  created_at: '2024-01-01T10:00:00Z',
+  ...overrides
+})
+
+export const createMockAuthState = (overrides: Partial<AuthState> = {}): AuthState => ({
+  user: null,
+  profile: null,
+  loading: false,
+  error: null,
+  ...overrides
+})
+```
+
+## 🎯 Accessibility Testing
+
+### Accessibility Test Utilities
+```typescript
+// ✅ Accessibility testing
+import { axe, toHaveNoViolations } from 'jest-axe'
+
+expect.extend(toHaveNoViolations)
+
+describe('Accessibility', () => {
+  it('should not have accessibility violations', async () => {
+    const { container } = renderWithProviders(<HealthRecordPage />)
+    const results = await axe(container)
+    expect(results).toHaveNoViolations()
+  })
+
+  it('should be keyboard navigable', () => {
+    renderWithProviders(<HealthRecordPage />)
+    
+    const firstButton = screen.getByRole('button', { name: /혈압 측정/i })
+    firstButton.focus()
+    expect(firstButton).toHaveFocus()
+    
+    // Test tab navigation
+    userEvent.tab()
+    const nextButton = screen.getByRole('button', { name: /혈당 측정/i })
+    expect(nextButton).toHaveFocus()
+  })
+})
+```
+
+## 📊 Performance Testing
+
+### Performance Test Utilities
+```typescript
+// ✅ Performance testing
+import { render, screen } from '@testing-library/react'
+import { renderWithProviders } from '../test-utils/render'
+import DashboardPage from '../pages/DashboardPage'
+
+describe('Performance', () => {
+  it('renders dashboard within acceptable time', () => {
+    const start = performance.now()
+    
+    renderWithProviders(<DashboardPage />)
+    
+    const end = performance.now()
+    const renderTime = end - start
+    
+    // Should render within 100ms
+    expect(renderTime).toBeLessThan(100)
+  })
+
+  it('handles large datasets efficiently', async () => {
+    const largeDataset = Array.from({ length: 1000 }, (_, i) => 
+      createMockHealthRecord({ id: `record-${i}` })
+    )
+
+    const { container } = renderWithProviders(<DashboardPage />, {
+      preloadedState: {
+        healthRecords: {
+          records: largeDataset,
+          loading: false,
+          error: null
+        }
+      }
+    })
+
+    // Should render without performance issues
+    expect(container).toBeInTheDocument()
+  })
+})
+```
+
+## 🚀 E2E Testing
+
+### E2E Test Setup
+```typescript
+// ✅ E2E test example (using Playwright)
+import { test, expect } from '@playwright/test'
+
+test.describe('Health Record App', () => {
+  test('user can login and add health record', async ({ page }) => {
+    // Navigate to login page
+    await page.goto('/login')
+    
+    // Fill login form
+    await page.fill('[data-testid="email-input"]', 'test@example.com')
+    await page.fill('[data-testid="password-input"]', 'password123')
+    await page.click('[data-testid="login-button"]')
+    
+    // Should redirect to dashboard
+    await expect(page).toHaveURL('/dashboard')
+    
+    // Click on blood pressure record button
+    await page.click('[data-testid="blood-pressure-button"]')
+    
+    // Fill health record form
+    await page.fill('[data-testid="systolic-input"]', '120')
+    await page.fill('[data-testid="diastolic-input"]', '80')
+    await page.click('[data-testid="save-button"]')
+    
+    // Should show success message
+    await expect(page.locator('[data-testid="success-message"]')).toBeVisible()
+  })
+})
+```
+
+## 📝 Test Coverage
+
+### Coverage Configuration
+```typescript
+// ✅ Jest coverage configuration
+module.exports = {
+  collectCoverageFrom: [
+    'src/**/*.{ts,tsx}',
+    '!src/**/*.d.ts',
+    '!src/main.tsx',
+    '!src/vite-env.d.ts'
+  ],
+  coverageThreshold: {
+    global: {
+      branches: 80,
+      functions: 80,
+      lines: 80,
+      statements: 80
+    }
+  },
+  coverageReporters: ['text', 'lcov', 'html']
+}
+```
+
+### Coverage Testing
+```typescript
+// ✅ Test coverage verification
+describe('Coverage', () => {
+  it('should have comprehensive test coverage', () => {
+    // This test ensures we're testing all critical paths
+    const criticalPaths = [
+      'authentication flow',
+      'health record creation',
+      'data validation',
+      'error handling',
+      'user interface interactions'
+    ]
+    
+    // Verify all critical paths are tested
+    criticalPaths.forEach(path => {
+      expect(path).toBeDefined()
+    })
+  })
+})
+```

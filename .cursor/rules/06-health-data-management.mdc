@@ -1,0 +1,451 @@
+---
+globs: src/pages/HealthRecordPage.tsx,src/store/slices/healthRecordsSlice.ts
+description: Health Data Management Guidelines
+---
+
+# 🏥 Health Data Management Guidelines
+
+## 📊 Health Record Types
+
+### Record Type Definitions
+```typescript
+// ✅ Define health record types
+type RecordType = 'blood_pressure' | 'blood_sugar' | 'weight' | 'heart_rate' | 'temperature'
+
+interface HealthRecord {
+  id: string
+  user_id: string
+  record_type: RecordType
+  systolic_pressure?: number
+  diastolic_pressure?: number
+  heart_rate?: number
+  blood_sugar?: number
+  blood_sugar_type?: 'fasting' | 'post_meal'
+  weight?: number
+  temperature?: number
+  measurement_time: string
+  notes?: string
+  created_at: string
+}
+```
+
+### Health Metric Interfaces
+```typescript
+// ✅ Specific interfaces for each health metric
+interface BloodPressureRecord {
+  systolic_pressure: number
+  diastolic_pressure: number
+  heart_rate?: number
+  measurement_time: string
+  notes?: string
+}
+
+interface BloodSugarRecord {
+  blood_sugar: number
+  blood_sugar_type: 'fasting' | 'post_meal'
+  measurement_time: string
+  notes?: string
+}
+
+interface WeightRecord {
+  weight: number
+  measurement_time: string
+  notes?: string
+}
+```
+
+## ✅ Form Validation
+
+### Blood Pressure Validation
+```typescript
+// ✅ Blood pressure validation rules
+const validateBloodPressure = (data: BloodPressureRecord): string | null => {
+  if (!data.systolic_pressure || !data.diastolic_pressure) {
+    return '수축기와 이완기 혈압을 모두 입력해주세요.'
+  }
+  
+  if (data.systolic_pressure < 50 || data.systolic_pressure > 300) {
+    return '수축기 혈압은 50-300 mmHg 범위여야 합니다.'
+  }
+  
+  if (data.diastolic_pressure < 30 || data.diastolic_pressure > 200) {
+    return '이완기 혈압은 30-200 mmHg 범위여야 합니다.'
+  }
+  
+  if (data.systolic_pressure <= data.diastolic_pressure) {
+    return '수축기 혈압은 이완기 혈압보다 높아야 합니다.'
+  }
+  
+  return null
+}
+```
+
+### Blood Sugar Validation
+```typescript
+// ✅ Blood sugar validation rules
+const validateBloodSugar = (data: BloodSugarRecord): string | null => {
+  if (!data.blood_sugar || !data.blood_sugar_type) {
+    return '혈당 수치와 측정 유형을 모두 입력해주세요.'
+  }
+  
+  if (data.blood_sugar < 50 || data.blood_sugar > 500) {
+    return '혈당은 50-500 mg/dL 범위여야 합니다.'
+  }
+  
+  return null
+}
+```
+
+### Weight Validation
+```typescript
+// ✅ Weight validation rules
+const validateWeight = (data: WeightRecord): string | null => {
+  if (!data.weight) {
+    return '체중을 입력해주세요.'
+  }
+  
+  if (data.weight < 20 || data.weight > 300) {
+    return '체중은 20-300 kg 범위여야 합니다.'
+  }
+  
+  return null
+}
+```
+
+## 📏 Input Ranges & Constraints
+
+### Health Metric Ranges
+```typescript
+// ✅ Define input ranges for each health metric
+export const HEALTH_METRIC_RANGES = {
+  blood_pressure: {
+    systolic: { min: 50, max: 300, unit: 'mmHg' },
+    diastolic: { min: 30, max: 200, unit: 'mmHg' },
+    heart_rate: { min: 30, max: 200, unit: 'bpm' }
+  },
+  blood_sugar: {
+    value: { min: 50, max: 500, unit: 'mg/dL' },
+    types: ['fasting', 'post_meal'] as const
+  },
+  weight: {
+    value: { min: 20, max: 300, step: 0.1, unit: 'kg' }
+  },
+  temperature: {
+    value: { min: 35, max: 42, step: 0.1, unit: '°C' }
+  }
+} as const
+```
+
+### Input Field Configuration
+```typescript
+// ✅ Configure input fields based on health metric
+const getInputConfig = (recordType: RecordType) => {
+  switch (recordType) {
+    case 'blood_pressure':
+      return {
+        fields: [
+          { name: 'systolic_pressure', label: '수축기 혈압', type: 'number' },
+          { name: 'diastolic_pressure', label: '이완기 혈압', type: 'number' },
+          { name: 'heart_rate', label: '맥박 (선택사항)', type: 'number', optional: true }
+        ],
+        validation: validateBloodPressure
+      }
+    case 'blood_sugar':
+      return {
+        fields: [
+          { name: 'blood_sugar', label: '혈당 수치', type: 'number' },
+          { name: 'blood_sugar_type', label: '측정 유형', type: 'select' }
+        ],
+        validation: validateBloodSugar
+      }
+    case 'weight':
+      return {
+        fields: [
+          { name: 'weight', label: '체중', type: 'number' }
+        ],
+        validation: validateWeight
+      }
+    default:
+      return { fields: [], validation: () => null }
+  }
+}
+```
+
+## 🎨 UI Patterns
+
+### Health Metric Icons & Colors
+```typescript
+// ✅ Define visual indicators for health metrics
+export const HEALTH_METRIC_INFO = {
+  blood_pressure: {
+    title: '혈압 측정',
+    icon: <BloodPressureIcon sx={{ fontSize: 40 }} />,
+    color: '#e74c3c',
+    description: '수축기와 이완기 혈압을 입력해주세요',
+    emoji: '❤️'
+  },
+  blood_sugar: {
+    title: '혈당 측정',
+    icon: <BloodSugarIcon sx={{ fontSize: 40 }} />,
+    color: '#3498db',
+    description: '공복 또는 식후 혈당을 입력해주세요',
+    emoji: '🩸'
+  },
+  weight: {
+    title: '체중 측정',
+    icon: <WeightIcon sx={{ fontSize: 40 }} />,
+    color: '#27ae60',
+    description: '현재 체중을 입력해주세요',
+    emoji: '⚖️'
+  },
+  heart_rate: {
+    title: '맥박 측정',
+    icon: <HeartRateIcon sx={{ fontSize: 40 }} />,
+    color: '#f39c12',
+    description: '심박수를 입력해주세요',
+    emoji: '💓'
+  },
+  temperature: {
+    title: '체온 측정',
+    icon: <TemperatureIcon sx={{ fontSize: 40 }} />,
+    color: '#e67e22',
+    description: '현재 체온을 입력해주세요',
+    emoji: '🌡️'
+  }
+} as const
+```
+
+### Form Field Rendering
+```typescript
+// ✅ Render form fields based on record type
+const renderFormFields = (recordType: RecordType) => {
+  const info = HEALTH_METRIC_INFO[recordType]
+  const config = getInputConfig(recordType)
+  
+  return (
+    <Box sx={{ mb: 3 }}>
+      <Typography variant="h6" gutterBottom sx={{ color: info.color }}>
+        {info.emoji} {info.title}
+      </Typography>
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+        {info.description}
+      </Typography>
+      
+      {config.fields.map(field => (
+        <TextField
+          key={field.name}
+          fullWidth
+          label={field.label}
+          type={field.type}
+          value={formData[field.name] || ''}
+          onChange={(e) => handleInputChange(field.name, e.target.value)}
+          size="large"
+          sx={{ fontSize: '1.2rem', mb: 2 }}
+          inputProps={{ 
+            style: { fontSize: '1.2rem' },
+            min: HEALTH_METRIC_RANGES[recordType]?.[field.name]?.min,
+            max: HEALTH_METRIC_RANGES[recordType]?.[field.name]?.max,
+            step: HEALTH_METRIC_RANGES[recordType]?.[field.name]?.step
+          }}
+        />
+      ))}
+    </Box>
+  )
+}
+```
+
+## 📊 Data Display Patterns
+
+### Recent Records Display
+```typescript
+// ✅ Display recent health records
+const getRecentRecords = (recordType: RecordType, limit: number = 3) => {
+  return records
+    .filter(record => record.record_type === recordType)
+    .sort((a, b) => new Date(b.measurement_time).getTime() - new Date(a.measurement_time).getTime())
+    .slice(0, limit)
+}
+
+const formatHealthValue = (record: HealthRecord) => {
+  switch (record.record_type) {
+    case 'blood_pressure':
+      return `${record.systolic_pressure}/${record.diastolic_pressure} mmHg`
+    case 'blood_sugar':
+      return `${record.blood_sugar} mg/dL`
+    case 'weight':
+      return `${record.weight} kg`
+    case 'heart_rate':
+      return `${record.heart_rate} bpm`
+    case 'temperature':
+      return `${record.temperature}°C`
+    default:
+      return 'N/A'
+  }
+}
+```
+
+### Health Status Indicators
+```typescript
+// ✅ Health status color coding
+const getHealthStatusColor = (record: HealthRecord): string => {
+  switch (record.record_type) {
+    case 'blood_pressure':
+      if (record.systolic_pressure! > 140 || record.diastolic_pressure! > 90) {
+        return '#e74c3c' // Red - High blood pressure
+      } else if (record.systolic_pressure! > 120 || record.diastolic_pressure! > 80) {
+        return '#f39c12' // Orange - Elevated
+      }
+      return '#27ae60' // Green - Normal
+      
+    case 'blood_sugar':
+      if (record.blood_sugar_type === 'fasting') {
+        if (record.blood_sugar! > 126) return '#e74c3c' // Red - Diabetic
+        if (record.blood_sugar! > 100) return '#f39c12' // Orange - Pre-diabetic
+        return '#27ae60' // Green - Normal
+      } else {
+        if (record.blood_sugar! > 200) return '#e74c3c' // Red - High
+        if (record.blood_sugar! > 140) return '#f39c12' // Orange - Elevated
+        return '#27ae60' // Green - Normal
+      }
+      
+    default:
+      return '#3498db' // Blue - Default
+  }
+}
+```
+
+## 📅 Date & Time Handling
+
+### Korean Date Formatting
+```typescript
+// ✅ Format dates for Korean users
+export const formatKoreanDate = (dateString: string): string => {
+  const date = new Date(dateString)
+  return date.toLocaleDateString('ko-KR', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+}
+
+export const formatKoreanTime = (dateString: string): string => {
+  const date = new Date(dateString)
+  return date.toLocaleTimeString('ko-KR', {
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+}
+```
+
+### Time Zone Handling
+```typescript
+// ✅ Handle time zones properly
+export const getCurrentDateTime = (): string => {
+  const now = new Date()
+  // Convert to local timezone
+  const offset = now.getTimezoneOffset()
+  const localTime = new Date(now.getTime() - (offset * 60 * 1000))
+  return localTime.toISOString().slice(0, 16)
+}
+```
+
+## 🔄 Data Processing
+
+### Health Record Aggregation
+```typescript
+// ✅ Aggregate health data for insights
+export const getHealthInsights = (records: HealthRecord[]) => {
+  const bloodPressureRecords = records.filter(r => r.record_type === 'blood_pressure')
+  const bloodSugarRecords = records.filter(r => r.record_type === 'blood_sugar')
+  const weightRecords = records.filter(r => r.record_type === 'weight')
+  
+  return {
+    bloodPressure: {
+      count: bloodPressureRecords.length,
+      average: bloodPressureRecords.length > 0 ? {
+        systolic: bloodPressureRecords.reduce((sum, r) => sum + (r.systolic_pressure || 0), 0) / bloodPressureRecords.length,
+        diastolic: bloodPressureRecords.reduce((sum, r) => sum + (r.diastolic_pressure || 0), 0) / bloodPressureRecords.length
+      } : null
+    },
+    bloodSugar: {
+      count: bloodSugarRecords.length,
+      average: bloodSugarRecords.length > 0 ? 
+        bloodSugarRecords.reduce((sum, r) => sum + (r.blood_sugar || 0), 0) / bloodSugarRecords.length : null
+    },
+    weight: {
+      count: weightRecords.length,
+      average: weightRecords.length > 0 ?
+        weightRecords.reduce((sum, r) => sum + (r.weight || 0), 0) / weightRecords.length : null,
+      trend: weightRecords.length > 1 ? 
+        (weightRecords[0].weight || 0) - (weightRecords[weightRecords.length - 1].weight || 0) : 0
+    }
+  }
+}
+```
+
+### Data Export
+```typescript
+// ✅ Export health data
+export const exportHealthData = (records: HealthRecord[], format: 'csv' | 'json' = 'csv') => {
+  if (format === 'csv') {
+    const headers = ['날짜', '측정 유형', '수축기 혈압', '이완기 혈압', '맥박', '혈당', '혈당 유형', '체중', '메모']
+    const csvContent = [
+      headers.join(','),
+      ...records.map(record => [
+        formatKoreanDate(record.measurement_time),
+        HEALTH_METRIC_INFO[record.record_type]?.title || record.record_type,
+        record.systolic_pressure || '',
+        record.diastolic_pressure || '',
+        record.heart_rate || '',
+        record.blood_sugar || '',
+        record.blood_sugar_type || '',
+        record.weight || '',
+        record.notes || ''
+      ].join(','))
+    ].join('\n')
+    
+    return csvContent
+  }
+  
+  return JSON.stringify(records, null, 2)
+}
+```
+
+## 🚨 Error Handling
+
+### Health Data Errors
+```typescript
+// ✅ Health-specific error messages
+export const HEALTH_ERROR_MESSAGES = {
+  INVALID_BLOOD_PRESSURE: '혈압 수치가 올바르지 않습니다.',
+  INVALID_BLOOD_SUGAR: '혈당 수치가 올바르지 않습니다.',
+  INVALID_WEIGHT: '체중이 올바르지 않습니다.',
+  MISSING_REQUIRED_FIELDS: '필수 입력 항목을 모두 입력해주세요.',
+  FUTURE_DATE: '미래 날짜는 입력할 수 없습니다.',
+  INVALID_DATE_RANGE: '날짜 범위가 올바르지 않습니다.'
+} as const
+
+const validateHealthRecord = (record: Partial<HealthRecord>): string | null => {
+  // Check for future dates
+  if (record.measurement_time && new Date(record.measurement_time) > new Date()) {
+    return HEALTH_ERROR_MESSAGES.FUTURE_DATE
+  }
+  
+  // Validate based on record type
+  if (record.record_type === 'blood_pressure') {
+    return validateBloodPressure(record as BloodPressureRecord)
+  }
+  
+  if (record.record_type === 'blood_sugar') {
+    return validateBloodSugar(record as BloodSugarRecord)
+  }
+  
+  if (record.record_type === 'weight') {
+    return validateWeight(record as WeightRecord)
+  }
+  
+  return null
+}
+```
