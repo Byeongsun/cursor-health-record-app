@@ -180,7 +180,7 @@ const HealthRecordPage: React.FC = () => {
             </Typography>
             
             <Grid container spacing={3}>
-              <Grid item xs={6} component="div">
+              <Grid item xs={6}>
                 <TextField
                   fullWidth
                   label="수축기 혈압"
@@ -201,7 +201,7 @@ const HealthRecordPage: React.FC = () => {
                 </Typography>
               </Grid>
               
-              <Grid item xs={6} component="div">
+              <Grid item xs={6}>
                 <TextField
                   fullWidth
                   label="이완기 혈압"
@@ -229,7 +229,7 @@ const HealthRecordPage: React.FC = () => {
                 💓 맥박 (선택사항)
               </Typography>
               <Grid container spacing={3}>
-                <Grid item xs={12} sm={6} component="div">
+                <Grid item xs={12} sm={6}>
                   <TextField
                     fullWidth
                     label="맥박"
@@ -265,7 +265,7 @@ const HealthRecordPage: React.FC = () => {
             </Typography>
             
             <Grid container spacing={3}>
-              <Grid item xs={6} component="div">
+              <Grid item xs={6}>
                 <FormControl fullWidth size="medium">
                   <InputLabel>측정 유형</InputLabel>
                   <Select
@@ -280,7 +280,7 @@ const HealthRecordPage: React.FC = () => {
                 </FormControl>
               </Grid>
               
-              <Grid item xs={6} component="div">
+              <Grid item xs={6}>
                 <TextField
                   fullWidth
                   label="혈당 수치"
@@ -415,7 +415,7 @@ const HealthRecordPage: React.FC = () => {
                 {(['blood_pressure', 'blood_sugar', 'weight'] as RecordType[]).map((type) => {
                   const info = getRecordTypeInfo(type)
                   return (
-                    <Grid item xs={12} sm={4} key={type} component="div">
+                    <Grid item xs={12} sm={4} key={type}>
                       <Card 
                         sx={{ 
                           cursor: 'pointer',

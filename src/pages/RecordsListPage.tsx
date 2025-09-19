@@ -199,7 +199,7 @@ const RecordsListPage: React.FC = () => {
 
   const handleBulkDelete = () => {
     const recordsToDelete = records.filter(record => selectedRecords.includes(record.id))
-    setSelectedRecords(recordsToDelete)
+    setSelectedRecords(recordsToDelete.map(record => record.id))
     setBulkDeleteOpen(true)
   }
 

@@ -127,7 +127,7 @@ const ProfilePage: React.FC = () => {
             </Box>
 
             <Grid container spacing={3}>
-              <Grid item xs={12} sm={6} component="div">
+              <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
                   label="이메일"
@@ -137,7 +137,7 @@ const ProfilePage: React.FC = () => {
                 />
               </Grid>
               
-              <Grid item xs={12} sm={6} component="div">
+              <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
                   label="이름"
@@ -149,7 +149,7 @@ const ProfilePage: React.FC = () => {
                 />
               </Grid>
 
-              <Grid item xs={12} sm={6} component="div">
+              <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
                   label="출생년도"
@@ -162,7 +162,7 @@ const ProfilePage: React.FC = () => {
                 />
               </Grid>
 
-              <Grid item xs={12} sm={6} component="div">
+              <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
                   label="성별"
@@ -181,7 +181,7 @@ const ProfilePage: React.FC = () => {
                 </TextField>
               </Grid>
 
-              <Grid item xs={12} sm={6} component="div">
+              <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
                   label="전화번호"
@@ -193,7 +193,7 @@ const ProfilePage: React.FC = () => {
                 />
               </Grid>
 
-              <Grid item xs={12} sm={6} component="div">
+              <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
                   label="비상연락처"

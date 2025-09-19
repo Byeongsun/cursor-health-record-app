@@ -290,7 +290,7 @@ const DashboardPage: React.FC = () => {
 
         {/* 오늘의 건강 상태 요약 카드 */}
         <Grid container spacing={3} sx={{ mb: 4 }}>
-          <Grid item xs={12} sm={6} md={3} component="div">
+          <Grid item xs={12} sm={6} md={3}>
             <Card sx={{ 
               backgroundColor: '#fff3cd',
               border: '2px solid #ffc107',
@@ -317,7 +317,7 @@ const DashboardPage: React.FC = () => {
             </Card>
           </Grid>
           
-          <Grid item xs={12} sm={6} md={3} component="div">
+          <Grid item xs={12} sm={6} md={3}>
             <Card sx={{ 
               backgroundColor: '#d1ecf1',
               border: '2px solid #17a2b8',
@@ -340,7 +340,7 @@ const DashboardPage: React.FC = () => {
             </Card>
           </Grid>
           
-          <Grid item xs={12} sm={6} md={3} component="div">
+          <Grid item xs={12} sm={6} md={3}>
             <Card sx={{ 
               backgroundColor: '#d4edda',
               border: '2px solid #28a745',
@@ -363,7 +363,7 @@ const DashboardPage: React.FC = () => {
             </Card>
           </Grid>
           
-          <Grid item xs={12} sm={6} md={3} component="div">
+          <Grid item xs={12} sm={6} md={3}>
             <Card sx={{ 
               backgroundColor: '#f8d7da',
               border: '2px solid #dc3545',
@@ -393,7 +393,7 @@ const DashboardPage: React.FC = () => {
         </Typography>
         
         <Grid container spacing={3} sx={{ mb: 5 }}>
-          <Grid item xs={12} sm={4} component="div">
+          <Grid item xs={12} sm={4}>
             <Card sx={{ 
               height: '100%',
               backgroundColor: '#fff',
@@ -443,7 +443,7 @@ const DashboardPage: React.FC = () => {
             </Card>
           </Grid>
 
-          <Grid item xs={12} sm={4} component="div">
+          <Grid item xs={12} sm={4}>
             <Card sx={{ 
               height: '100%',
               backgroundColor: '#fff',
@@ -493,7 +493,7 @@ const DashboardPage: React.FC = () => {
             </Card>
           </Grid>
 
-          <Grid item xs={12} sm={4} component="div">
+          <Grid item xs={12} sm={4}>
             <Card sx={{ 
               height: '100%',
               backgroundColor: '#fff',
@@ -550,7 +550,7 @@ const DashboardPage: React.FC = () => {
         </Typography>
         
         <Grid container spacing={4}>
-          <Grid item xs={12} md={6} component="div">
+          <Grid item xs={12} md={6}>
             <Card sx={{ 
               backgroundColor: '#fff',
               border: '1px solid #e0e0e0',
@@ -654,7 +654,7 @@ const DashboardPage: React.FC = () => {
             </Card>
           </Grid>
 
-          <Grid item xs={12} md={6} component="div">
+          <Grid item xs={12} md={6}>
             <Card sx={{ 
               backgroundColor: '#fff',
               border: '1px solid #e0e0e0',
@@ -759,7 +759,7 @@ const DashboardPage: React.FC = () => {
 
         {/* 체중 기록도 추가 */}
         <Grid container spacing={4} sx={{ mt: 4 }}>
-          <Grid item xs={12} md={6} component="div">
+          <Grid item xs={12} md={6}>
             <Card sx={{ 
               backgroundColor: '#fff',
               border: '1px solid #e0e0e0',
