@@ -359,7 +359,14 @@ const HealthRecordPage: React.FC = () => {
         onEditRecord={() => {/* TODO: 편집 구현 */}}
       />
 
-      <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
+      <Container 
+        maxWidth="md" 
+        sx={{ 
+          mt: { xs: 2, sm: 4 }, 
+          mb: { xs: 2, sm: 4 },
+          px: { xs: 2, sm: 3 }
+        }}
+      >
         {/* 페이지 제목 */}
         <Typography variant="h4" sx={{ fontWeight: 700, mb: 3, color: 'text.primary', textAlign: 'center' }}>
           건강 기록 입력

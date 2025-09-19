@@ -95,7 +95,14 @@ const ProfilePage: React.FC = () => {
         onEditRecord={() => {/* TODO: 편집 구현 */}}
       />
 
-      <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
+      <Container 
+        maxWidth="md" 
+        sx={{ 
+          mt: { xs: 2, sm: 4 }, 
+          mb: { xs: 2, sm: 4 },
+          px: { xs: 2, sm: 3 }
+        }}
+      >
         <Typography variant="h4" gutterBottom>
           프로필 관리
         </Typography>

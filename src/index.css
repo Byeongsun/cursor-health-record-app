@@ -24,10 +24,9 @@ a:hover {
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  /* 모바일에서 앱의 레이아웃을 위해 flex 제거 */
 }
 
 h1 {

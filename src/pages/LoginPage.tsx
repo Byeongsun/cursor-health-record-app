@@ -54,7 +54,13 @@ const LoginPage: React.FC = () => {
 
 
   return (
-    <Container maxWidth="sm">
+    <Container 
+      maxWidth="sm" 
+      sx={{ 
+        px: { xs: 2, sm: 3 },
+        py: { xs: 2, sm: 4 }
+      }}
+    >
       <Box
         sx={{
           minHeight: '100vh',

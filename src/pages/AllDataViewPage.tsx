@@ -237,7 +237,14 @@ const AllDataViewPage: React.FC = () => {
         onEditRecord={() => {/* TODO: 편집 구현 */}}
       />
 
-      <Container maxWidth="xl" sx={{ mt: 3, mb: 4 }}>
+      <Container 
+        maxWidth="xl" 
+        sx={{ 
+          mt: { xs: 2, sm: 3 }, 
+          mb: { xs: 2, sm: 4 },
+          px: { xs: 1, sm: 2, md: 3 }
+        }}
+      >
         {/* 페이지 제목 */}
         <Typography variant="h4" sx={{ fontWeight: 700, mb: 3, color: 'text.primary' }}>
           📊 전체 데이터 뷰

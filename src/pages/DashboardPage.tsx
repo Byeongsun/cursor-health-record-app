@@ -270,7 +270,14 @@ const DashboardPage: React.FC = () => {
         onEditRecord={handleEditRecord}
       />
 
-      <Container maxWidth="lg" sx={{ mt: 3, mb: 4 }}>
+      <Container 
+        maxWidth="lg" 
+        sx={{ 
+          mt: { xs: 2, sm: 3 }, 
+          mb: { xs: 2, sm: 4 },
+          px: { xs: 2, sm: 3 }
+        }}
+      >
         {/* 환영 메시지 및 오늘의 건강 상태 요약 */}
         <Box sx={{ 
           textAlign: 'center', 
