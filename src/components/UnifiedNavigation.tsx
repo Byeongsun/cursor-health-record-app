@@ -116,9 +116,15 @@ const UnifiedNavigation: React.FC<UnifiedNavigationProps> = ({
   return (
     <AppBar position="static" sx={{ 
       background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-      boxShadow: '0 4px 20px rgba(102, 126, 234, 0.3)'
+      boxShadow: '0 4px 20px rgba(102, 126, 234, 0.3)',
+      zIndex: 1100,
+      width: '100%'
     }}>
-      <Toolbar sx={{ py: 1, minHeight: { xs: 56, sm: 64 } }}>
+      <Toolbar sx={{ 
+        py: 1, 
+        minHeight: { xs: 56, sm: 64 },
+        px: { xs: 2, sm: 3 }
+      }}>
         {/* 앱 제목 */}
         <Typography 
           variant={isMobile ? "h6" : "h4"} 
@@ -126,7 +132,8 @@ const UnifiedNavigation: React.FC<UnifiedNavigationProps> = ({
           sx={{ 
             flexGrow: 1, 
             fontWeight: 700,
-            fontSize: { xs: '1.2rem', sm: '1.5rem', md: '2rem' }
+            fontSize: { xs: '1.1rem', sm: '1.5rem', md: '2rem' },
+            lineHeight: 1.2
           }}
         >
           🏥 {isMobile ? '헬스케어' : '헬스케어 다이어리'}

@@ -281,113 +281,216 @@ const DashboardPage: React.FC = () => {
         {/* 환영 메시지 및 오늘의 건강 상태 요약 */}
         <Box sx={{ 
           textAlign: 'center', 
-          mb: 4,
-          p: 3,
+          mb: { xs: 2, sm: 4 },
+          p: { xs: 2, sm: 3 },
           backgroundColor: '#f8f9fa',
           borderRadius: 2,
           border: '1px solid #e9ecef'
         }}>
-          <Typography variant="h4" gutterBottom sx={{ fontWeight: 600, color: 'text.primary' }}>
+          <Typography 
+            variant={"h5"} 
+            gutterBottom 
+            sx={{ 
+              fontWeight: 600, 
+              color: 'text.primary',
+              fontSize: { xs: '1.3rem', sm: '1.5rem', md: '2rem' }
+            }}
+          >
             안녕하세요, {profile?.name || user?.email}님! 👋
           </Typography>
-          <Typography variant="h6" sx={{ color: 'text.secondary', fontWeight: 400 }}>
+          <Typography 
+            variant="body1" 
+            sx={{ 
+              color: 'text.secondary', 
+              fontWeight: 400,
+              fontSize: { xs: '0.95rem', sm: '1.1rem' }
+            }}
+          >
             오늘의 건강 상태를 확인해보세요
           </Typography>
         </Box>
 
         {/* 오늘의 건강 상태 요약 카드 */}
-        <Grid container spacing={3} sx={{ mb: 4 }}>
-          <Grid item xs={12} sm={6} md={3}>
+        <Grid container spacing={{ xs: 2, sm: 3 }} sx={{ mb: { xs: 3, sm: 4 } }}>
+          <Grid item xs={6} sm={6} md={3}>
             <Card sx={{ 
               backgroundColor: '#fff3cd',
               border: '2px solid #ffc107',
               borderRadius: 2,
               textAlign: 'center',
-              p: 2
+              p: { xs: 1.5, sm: 2 },
+              minHeight: { xs: '120px', sm: '140px' }
             }}>
-              <Typography variant="h2" sx={{ mb: 1 }}>
+              <Typography variant="h2" sx={{ mb: 1, fontSize: { xs: '2rem', sm: '3rem' } }}>
                 📊
               </Typography>
-              <Typography variant="h6" sx={{ fontWeight: 700, color: '#856404', mb: 1 }}>
+              <Typography 
+                variant="h6" 
+                sx={{ 
+                  fontWeight: 700, 
+                  color: '#856404', 
+                  mb: 1,
+                  fontSize: { xs: '0.9rem', sm: '1.25rem' }
+                }}
+              >
                 오늘 기록
               </Typography>
-              <Typography variant="h4" sx={{ fontWeight: 800, color: '#856404' }}>
+              <Typography 
+                variant="h4" 
+                sx={{ 
+                  fontWeight: 800, 
+                  color: '#856404',
+                  fontSize: { xs: '1.5rem', sm: '2rem' }
+                }}
+              >
                 {records.filter(record => {
                   const today = new Date()
                   const recordDate = new Date(record.measurement_time)
                   return recordDate.toDateString() === today.toDateString()
                 }).length}
               </Typography>
-              <Typography variant="body2" sx={{ color: '#856404' }}>
+              <Typography 
+                variant="body2" 
+                sx={{ 
+                  color: '#856404',
+                  fontSize: { xs: '0.75rem', sm: '0.875rem' }
+                }}
+              >
                 건의 측정
               </Typography>
             </Card>
           </Grid>
           
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid item xs={6} sm={6} md={3}>
             <Card sx={{ 
               backgroundColor: '#d1ecf1',
               border: '2px solid #17a2b8',
               borderRadius: 2,
               textAlign: 'center',
-              p: 2
+              p: { xs: 1.5, sm: 2 },
+              minHeight: { xs: '120px', sm: '140px' }
             }}>
-              <Typography variant="h2" sx={{ mb: 1 }}>
+              <Typography variant="h2" sx={{ mb: 1, fontSize: { xs: '2rem', sm: '3rem' } }}>
                 🎯
               </Typography>
-              <Typography variant="h6" sx={{ fontWeight: 700, color: '#0c5460', mb: 1 }}>
+              <Typography 
+                variant="h6" 
+                sx={{ 
+                  fontWeight: 700, 
+                  color: '#0c5460', 
+                  mb: 1,
+                  fontSize: { xs: '0.9rem', sm: '1.25rem' }
+                }}
+              >
                 활성 목표
               </Typography>
-              <Typography variant="h4" sx={{ fontWeight: 800, color: '#0c5460' }}>
+              <Typography 
+                variant="h4" 
+                sx={{ 
+                  fontWeight: 800, 
+                  color: '#0c5460',
+                  fontSize: { xs: '1.5rem', sm: '2rem' }
+                }}
+              >
                 {goals.filter(goal => !goal.is_achieved).length}
               </Typography>
-              <Typography variant="body2" sx={{ color: '#0c5460' }}>
+              <Typography 
+                variant="body2" 
+                sx={{ 
+                  color: '#0c5460',
+                  fontSize: { xs: '0.75rem', sm: '0.875rem' }
+                }}
+              >
                 개의 목표
               </Typography>
             </Card>
           </Grid>
           
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid item xs={6} sm={6} md={3}>
             <Card sx={{ 
               backgroundColor: '#d4edda',
               border: '2px solid #28a745',
               borderRadius: 2,
               textAlign: 'center',
-              p: 2
+              p: { xs: 1.5, sm: 2 },
+              minHeight: { xs: '120px', sm: '140px' }
             }}>
-              <Typography variant="h2" sx={{ mb: 1 }}>
+              <Typography variant="h2" sx={{ mb: 1, fontSize: { xs: '2rem', sm: '3rem' } }}>
                 ✅
               </Typography>
-              <Typography variant="h6" sx={{ fontWeight: 700, color: '#155724', mb: 1 }}>
+              <Typography 
+                variant="h6" 
+                sx={{ 
+                  fontWeight: 700, 
+                  color: '#155724', 
+                  mb: 1,
+                  fontSize: { xs: '0.9rem', sm: '1.25rem' }
+                }}
+              >
                 완료된 목표
               </Typography>
-              <Typography variant="h4" sx={{ fontWeight: 800, color: '#155724' }}>
+              <Typography 
+                variant="h4" 
+                sx={{ 
+                  fontWeight: 800, 
+                  color: '#155724',
+                  fontSize: { xs: '1.5rem', sm: '2rem' }
+                }}
+              >
                 {goals.filter(goal => goal.is_achieved).length}
               </Typography>
-              <Typography variant="body2" sx={{ color: '#155724' }}>
+              <Typography 
+                variant="body2" 
+                sx={{ 
+                  color: '#155724',
+                  fontSize: { xs: '0.75rem', sm: '0.875rem' }
+                }}
+              >
                 개 달성
               </Typography>
             </Card>
           </Grid>
           
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid item xs={6} sm={6} md={3}>
             <Card sx={{ 
               backgroundColor: '#f8d7da',
               border: '2px solid #dc3545',
               borderRadius: 2,
               textAlign: 'center',
-              p: 2
+              p: { xs: 1.5, sm: 2 },
+              minHeight: { xs: '120px', sm: '140px' }
             }}>
-              <Typography variant="h2" sx={{ mb: 1 }}>
+              <Typography variant="h2" sx={{ mb: 1, fontSize: { xs: '2rem', sm: '3rem' } }}>
                 🔔
               </Typography>
-              <Typography variant="h6" sx={{ fontWeight: 700, color: '#721c24', mb: 1 }}>
+              <Typography 
+                variant="h6" 
+                sx={{ 
+                  fontWeight: 700, 
+                  color: '#721c24', 
+                  mb: 1,
+                  fontSize: { xs: '0.9rem', sm: '1.25rem' }
+                }}
+              >
                 새 알림
               </Typography>
-              <Typography variant="h4" sx={{ fontWeight: 800, color: '#721c24' }}>
+              <Typography 
+                variant="h4" 
+                sx={{ 
+                  fontWeight: 800, 
+                  color: '#721c24',
+                  fontSize: { xs: '1.5rem', sm: '2rem' }
+                }}
+              >
                 {unreadCount}
               </Typography>
-              <Typography variant="body2" sx={{ color: '#721c24' }}>
+              <Typography 
+                variant="body2" 
+                sx={{ 
+                  color: '#721c24',
+                  fontSize: { xs: '0.75rem', sm: '0.875rem' }
+                }}
+              >
                 개의 알림
               </Typography>
             </Card>
@@ -395,11 +498,20 @@ const DashboardPage: React.FC = () => {
         </Grid>
 
         {/* 빠른 액션 버튼들 */}
-        <Typography variant="h5" gutterBottom sx={{ mb: 3, fontWeight: 600, color: 'text.primary' }}>
+        <Typography 
+          variant="h5" 
+          gutterBottom 
+          sx={{ 
+            mb: { xs: 2, sm: 3 }, 
+            fontWeight: 600, 
+            color: 'text.primary',
+            fontSize: { xs: '1.2rem', sm: '1.5rem' }
+          }}
+        >
           📊 건강 수치 기록하기
         </Typography>
         
-        <Grid container spacing={3} sx={{ mb: 5 }}>
+        <Grid container spacing={{ xs: 2, sm: 3 }} sx={{ mb: { xs: 3, sm: 5 } }}>
           <Grid item xs={12} sm={4}>
             <Card sx={{ 
               height: '100%',
@@ -409,21 +521,48 @@ const DashboardPage: React.FC = () => {
               boxShadow: '0 2px 8px rgba(231, 76, 60, 0.1)',
               transition: 'all 0.3s ease',
               '&:hover': {
-                transform: 'translateY(-4px)',
+                transform: { xs: 'none', sm: 'translateY(-4px)' },
                 boxShadow: '0 8px 25px rgba(231, 76, 60, 0.2)',
                 border: '2px solid #c0392b',
               }
             }}>
-              <CardContent sx={{ textAlign: 'center', py: 4 }}>
-                <Box sx={{ mb: 3 }}>
-                  <Typography variant="h1" sx={{ fontSize: '3rem', mb: 1 }}>
+              <CardContent sx={{ 
+                textAlign: 'center', 
+                py: { xs: 3, sm: 4 },
+                px: { xs: 2, sm: 3 }
+              }}>
+                <Box sx={{ mb: { xs: 2, sm: 3 } }}>
+                  <Typography 
+                    variant="h1" 
+                    sx={{ 
+                      fontSize: { xs: '2.5rem', sm: '3rem' }, 
+                      mb: 1 
+                    }}
+                  >
                     ❤️
                   </Typography>
                 </Box>
-                <Typography variant="h5" gutterBottom sx={{ fontWeight: 700, mb: 2, color: '#e74c3c' }}>
+                <Typography 
+                  variant="h5" 
+                  gutterBottom 
+                  sx={{ 
+                    fontWeight: 700, 
+                    mb: { xs: 1.5, sm: 2 }, 
+                    color: '#e74c3c',
+                    fontSize: { xs: '1.2rem', sm: '1.5rem' }
+                  }}
+                >
                   혈압 측정
                 </Typography>
-                <Typography variant="body1" sx={{ mb: 4, color: 'text.secondary', lineHeight: 1.6 }}>
+                <Typography 
+                  variant="body1" 
+                  sx={{ 
+                    mb: { xs: 3, sm: 4 }, 
+                    color: 'text.secondary', 
+                    lineHeight: 1.6,
+                    fontSize: { xs: '0.9rem', sm: '1rem' }
+                  }}
+                >
                   수축기/이완기 혈압과<br />맥박을 기록하세요
                 </Typography>
                 <Button
@@ -434,13 +573,14 @@ const DashboardPage: React.FC = () => {
                   onClick={() => handleHealthRecord('blood_pressure')}
                   sx={{
                     backgroundColor: '#e74c3c',
-                    fontSize: '1.1rem',
+                    fontSize: { xs: '1rem', sm: '1.1rem' },
                     fontWeight: 600,
-                    py: 1.5,
+                    py: { xs: 1.2, sm: 1.5 },
                     borderRadius: 2,
+                    minHeight: { xs: '48px', sm: '56px' },
                     '&:hover': {
                       backgroundColor: '#c0392b',
-                      transform: 'scale(1.02)',
+                      transform: { xs: 'none', sm: 'scale(1.02)' },
                     }
                   }}
                 >
@@ -459,21 +599,48 @@ const DashboardPage: React.FC = () => {
               boxShadow: '0 2px 8px rgba(52, 152, 219, 0.1)',
               transition: 'all 0.3s ease',
               '&:hover': {
-                transform: 'translateY(-4px)',
+                transform: { xs: 'none', sm: 'translateY(-4px)' },
                 boxShadow: '0 8px 25px rgba(52, 152, 219, 0.2)',
                 border: '2px solid #2980b9',
               }
             }}>
-              <CardContent sx={{ textAlign: 'center', py: 4 }}>
-                <Box sx={{ mb: 3 }}>
-                  <Typography variant="h1" sx={{ fontSize: '3rem', mb: 1 }}>
+              <CardContent sx={{ 
+                textAlign: 'center', 
+                py: { xs: 3, sm: 4 },
+                px: { xs: 2, sm: 3 }
+              }}>
+                <Box sx={{ mb: { xs: 2, sm: 3 } }}>
+                  <Typography 
+                    variant="h1" 
+                    sx={{ 
+                      fontSize: { xs: '2.5rem', sm: '3rem' }, 
+                      mb: 1 
+                    }}
+                  >
                     🩸
                   </Typography>
                 </Box>
-                <Typography variant="h5" gutterBottom sx={{ fontWeight: 700, mb: 2, color: '#3498db' }}>
+                <Typography 
+                  variant="h5" 
+                  gutterBottom 
+                  sx={{ 
+                    fontWeight: 700, 
+                    mb: { xs: 1.5, sm: 2 }, 
+                    color: '#3498db',
+                    fontSize: { xs: '1.2rem', sm: '1.5rem' }
+                  }}
+                >
                   혈당 측정
                 </Typography>
-                <Typography variant="body1" sx={{ mb: 4, color: 'text.secondary', lineHeight: 1.6 }}>
+                <Typography 
+                  variant="body1" 
+                  sx={{ 
+                    mb: { xs: 3, sm: 4 }, 
+                    color: 'text.secondary', 
+                    lineHeight: 1.6,
+                    fontSize: { xs: '0.9rem', sm: '1rem' }
+                  }}
+                >
                   공복/식후 혈당을<br />기록하세요
                 </Typography>
                 <Button
@@ -484,13 +651,14 @@ const DashboardPage: React.FC = () => {
                   onClick={() => handleHealthRecord('blood_sugar')}
                   sx={{
                     backgroundColor: '#3498db',
-                    fontSize: '1.1rem',
+                    fontSize: { xs: '1rem', sm: '1.1rem' },
                     fontWeight: 600,
-                    py: 1.5,
+                    py: { xs: 1.2, sm: 1.5 },
                     borderRadius: 2,
+                    minHeight: { xs: '48px', sm: '56px' },
                     '&:hover': {
                       backgroundColor: '#2980b9',
-                      transform: 'scale(1.02)',
+                      transform: { xs: 'none', sm: 'scale(1.02)' },
                     }
                   }}
                 >
@@ -509,21 +677,48 @@ const DashboardPage: React.FC = () => {
               boxShadow: '0 2px 8px rgba(39, 174, 96, 0.1)',
               transition: 'all 0.3s ease',
               '&:hover': {
-                transform: 'translateY(-4px)',
+                transform: { xs: 'none', sm: 'translateY(-4px)' },
                 boxShadow: '0 8px 25px rgba(39, 174, 96, 0.2)',
                 border: '2px solid #229954',
               }
             }}>
-              <CardContent sx={{ textAlign: 'center', py: 4 }}>
-                <Box sx={{ mb: 3 }}>
-                  <Typography variant="h1" sx={{ fontSize: '3rem', mb: 1 }}>
+              <CardContent sx={{ 
+                textAlign: 'center', 
+                py: { xs: 3, sm: 4 },
+                px: { xs: 2, sm: 3 }
+              }}>
+                <Box sx={{ mb: { xs: 2, sm: 3 } }}>
+                  <Typography 
+                    variant="h1" 
+                    sx={{ 
+                      fontSize: { xs: '2.5rem', sm: '3rem' }, 
+                      mb: 1 
+                    }}
+                  >
                     ⚖️
                   </Typography>
                 </Box>
-                <Typography variant="h5" gutterBottom sx={{ fontWeight: 700, mb: 2, color: '#27ae60' }}>
+                <Typography 
+                  variant="h5" 
+                  gutterBottom 
+                  sx={{ 
+                    fontWeight: 700, 
+                    mb: { xs: 1.5, sm: 2 }, 
+                    color: '#27ae60',
+                    fontSize: { xs: '1.2rem', sm: '1.5rem' }
+                  }}
+                >
                   체중 측정
                 </Typography>
-                <Typography variant="body1" sx={{ mb: 4, color: 'text.secondary', lineHeight: 1.6 }}>
+                <Typography 
+                  variant="body1" 
+                  sx={{ 
+                    mb: { xs: 3, sm: 4 }, 
+                    color: 'text.secondary', 
+                    lineHeight: 1.6,
+                    fontSize: { xs: '0.9rem', sm: '1rem' }
+                  }}
+                >
                   체중과 BMI를<br />기록하세요
                 </Typography>
                 <Button
@@ -534,13 +729,14 @@ const DashboardPage: React.FC = () => {
                   onClick={() => handleHealthRecord('weight')}
                   sx={{
                     backgroundColor: '#27ae60',
-                    fontSize: '1.1rem',
+                    fontSize: { xs: '1rem', sm: '1.1rem' },
                     fontWeight: 600,
-                    py: 1.5,
+                    py: { xs: 1.2, sm: 1.5 },
                     borderRadius: 2,
+                    minHeight: { xs: '48px', sm: '56px' },
                     '&:hover': {
                       backgroundColor: '#229954',
-                      transform: 'scale(1.02)',
+                      transform: { xs: 'none', sm: 'scale(1.02)' },
                     }
                   }}
                 >
@@ -552,24 +748,52 @@ const DashboardPage: React.FC = () => {
         </Grid>
 
         {/* 최근 기록 요약 */}
-        <Typography variant="h5" sx={{ fontWeight: 600, color: 'text.primary', mb: 3 }}>
+        <Typography 
+          variant="h5" 
+          sx={{ 
+            fontWeight: 600, 
+            color: 'text.primary', 
+            mb: { xs: 2, sm: 3 },
+            fontSize: { xs: '1.2rem', sm: '1.5rem' }
+          }}
+        >
           📈 최근 건강 기록
         </Typography>
         
-        <Grid container spacing={4}>
+        <Grid container spacing={{ xs: 2, sm: 4 }}>
           <Grid item xs={12} md={6}>
             <Card sx={{ 
               backgroundColor: '#fff',
               border: '1px solid #e0e0e0',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+              borderRadius: 2
             }}>
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
+              <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+                <Box sx={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'space-between', 
+                  mb: { xs: 2, sm: 3 },
+                  flexWrap: { xs: 'wrap', sm: 'nowrap' }
+                }}>
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <Typography variant="h2" sx={{ mr: 2, fontSize: '2.5rem' }}>
+                    <Typography 
+                      variant="h2" 
+                      sx={{ 
+                        mr: { xs: 1, sm: 2 }, 
+                        fontSize: { xs: '2rem', sm: '2.5rem' }
+                      }}
+                    >
                       ❤️
                     </Typography>
-                    <Typography variant="h5" sx={{ fontWeight: 700, color: '#d32f2f' }}>
+                    <Typography 
+                      variant="h5" 
+                      sx={{ 
+                        fontWeight: 700, 
+                        color: '#d32f2f',
+                        fontSize: { xs: '1.1rem', sm: '1.5rem' }
+                      }}
+                    >
                       최근 혈압 기록
                     </Typography>
                   </Box>

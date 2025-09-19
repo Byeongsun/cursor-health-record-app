@@ -168,6 +168,10 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+          minHeight: '64px',
+          '@media (max-width:600px)': {
+            minHeight: '56px',
+          },
         },
       },
     },
