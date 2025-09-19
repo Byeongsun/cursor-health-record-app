@@ -60,6 +60,7 @@ const HealthRecordPage: React.FC = () => {
     recordType: typeFromUrl || 'blood_pressure',
     measurementTime: new Date().toISOString().slice(0, 16), // 현재 시간
     notes: '',
+    bloodSugarType: typeFromUrl === 'blood_sugar' ? 'fasting' : undefined, // URL에서 혈당 측정이 선택된 경우 초기값을 공복혈당으로 설정
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitSuccess, setSubmitSuccess] = useState(false)
@@ -440,6 +441,10 @@ const HealthRecordPage: React.FC = () => {
                         onClick={() => {
                           setSelectedType(type)
                           handleInputChange('recordType', type)
+                          // 혈당 측정을 선택하면 초기값을 공복혈당으로 설정
+                          if (type === 'blood_sugar') {
+                            handleInputChange('bloodSugarType', 'fasting')
+                          }
                         }}
                       >
                         <CardContent sx={{ textAlign: 'center', py: 4 }}>
