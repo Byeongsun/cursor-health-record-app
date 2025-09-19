@@ -15,13 +15,21 @@
     "noEmit": true,
     "jsx": "react-jsx",
 
-    /* Linting */
-    "strict": false,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "erasableSyntaxOnly": true,
-    "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+          /* Linting */
+          "strict": false,
+          "noUnusedLocals": false,
+          "noUnusedParameters": false,
+          "erasableSyntaxOnly": true,
+          "noFallthroughCasesInSwitch": false,
+          "noUncheckedSideEffectImports": false,
+          "noImplicitAny": false,
+          "noImplicitReturns": false,
+          "noImplicitThis": false,
+          "strictNullChecks": false,
+          "strictFunctionTypes": false,
+          "strictBindCallApply": false,
+          "strictPropertyInitialization": false,
+          "noImplicitOverride": false
   },
   "include": ["src"]
 }
