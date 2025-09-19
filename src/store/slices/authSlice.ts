@@ -81,20 +81,6 @@ export const signInWithGoogle = createAsyncThunk(
   }
 )
 
-// 카카오 로그인
-export const signInWithKakao = createAsyncThunk(
-  'auth/signInWithKakao',
-  async () => {
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: 'kakao',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    })
-    if (error) throw error
-    return data
-  }
-)
 
 export const getUserProfile = createAsyncThunk(
   'auth/getUserProfile',

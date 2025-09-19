@@ -15,9 +15,8 @@ import {
 } from '@mui/material'
 import {
   Google as GoogleIcon,
-  Chat as KakaoIcon,
 } from '@mui/icons-material'
-import { signIn, signUp, signInWithGoogle, signInWithKakao } from '../store/slices/authSlice'
+import { signIn, signUp, signInWithGoogle } from '../store/slices/authSlice'
 import { useAuth } from '../hooks/useAuth'
 import SocialLoginGuide from '../components/SocialLoginGuide'
 
@@ -53,9 +52,6 @@ const LoginPage: React.FC = () => {
     dispatch(signInWithGoogle())
   }
 
-  const handleKakaoLogin = () => {
-    dispatch(signInWithKakao())
-  }
 
   return (
     <Container maxWidth="sm">
@@ -228,28 +224,6 @@ const LoginPage: React.FC = () => {
                   Google로 로그인
                 </Button>
 
-                <Button
-                  fullWidth
-                  variant="outlined"
-                  size="medium"
-                  startIcon={<KakaoIcon />}
-                  onClick={handleKakaoLogin}
-                  disabled={loading}
-                  sx={{ 
-                    py: 2,
-                    borderColor: 'rgba(255,255,255,0.5)',
-                    color: 'white',
-                    backgroundColor: 'rgba(255,255,255,0.1)',
-                    fontSize: '1.2rem',
-                    fontWeight: 600,
-                    '&:hover': {
-                      borderColor: 'rgba(255,255,255,0.8)',
-                      backgroundColor: 'rgba(255,255,255,0.2)',
-                    }
-                  }}
-                >
-                  카카오로 로그인
-                </Button>
               </Stack>
 
               <Box textAlign="center">
